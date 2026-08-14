@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getEmpresaActual } from "@/lib/empresa";
 import PageTitle from "@/components/page-title";
 import TerceroForm from "./tercero-form";
+import TerceroRow from "./tercero-row";
 
 export default async function TercerosPage() {
   const supabase = await createClient();
@@ -31,12 +32,7 @@ export default async function TercerosPage() {
               </thead>
               <tbody className="divide-y divide-line">
                 {(terceros ?? []).map((t) => (
-                  <tr key={t.id}>
-                    <td className="px-3 py-2 text-ink">{t.razon_social}</td>
-                    <td className="px-3 py-2 capitalize text-ink-soft">{t.tipo}</td>
-                    <td className="px-3 py-2 text-ink-soft">{t.cuit ?? "-"}</td>
-                    <td className="px-3 py-2 text-ink-soft">{t.condicion_iva}</td>
-                  </tr>
+                  <TerceroRow key={t.id} tercero={t} />
                 ))}
                 {(terceros ?? []).length === 0 && (
                   <tr>
