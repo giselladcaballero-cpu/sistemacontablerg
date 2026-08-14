@@ -14,6 +14,14 @@ interface Factura {
   numero: number | null;
   fecha: string;
   total: number;
+  sujeto_retencion_iibb: boolean;
+  tasa_retencion_iibb: number;
+  sujeto_retencion_iva: boolean;
+  tasa_retencion_iva: number;
+  sujeto_retencion_ganancias: boolean;
+  tasa_retencion_ganancias: number;
+  sujeto_retencion_suss: boolean;
+  tasa_retencion_suss: number;
 }
 
 function fmt(n: number) {
@@ -54,10 +62,16 @@ export default function OrdenPagoForm({
   const [error, setError] = useState<string | null>(null);
 
   const facturasDelProveedor = facturas.filter((f) => f.tercero_id === terceroId);
+  const proveedorInfo = facturasDelProveedor[0];
   const total = facturasDelProveedor
     .filter((f) => seleccionadas.has(f.comprobante_id))
     .reduce((s, f) => s + Number(f.total), 0);
   const neto = total - retencionIva - retencionGanancias - retencionIibb - retencionSuss;
+
+  const muestraIva = agente.iva && !!proveedorInfo?.sujeto_retencion_iva;
+  const muestraGanancias = agente.ganancias && !!proveedorInfo?.sujeto_retencion_ganancias;
+  const muestraIibb = agente.iibb && !!proveedorInfo?.sujeto_retencion_iibb;
+  const muestraSuss = agente.suss && !!proveedorInfo?.sujeto_retencion_suss;
 
   function toggleFactura(id: string) {
     setSeleccionadas((prev) => {
@@ -227,55 +241,50 @@ export default function OrdenPagoForm({
         </div>
       )}
 
-      {seleccionadas.size > 0 && !agente.iva && !agente.ganancias && !agente.iibb && !agente.suss && (
+      {seleccionadas.size > 0 && !muestraIva && !muestraGanancias && !muestraIibb && !muestraSuss && (
         <p className="text-sm text-ink-soft">
-          Tu empresa no está marcada como agente de retención en el{" "}
+          No corresponde practicar retenciones en este pago: o tu empresa no es agente de retención
+          (revisá el{" "}
           <a href="/perfil" className="text-accent hover:opacity-80">
             Perfil del Cliente
           </a>
-          , así que no se practican retenciones en este pago.
+          ), o este proveedor no está marcado como sujeto a retención (revisá su ficha en{" "}
+          <a href="/terceros" className="text-accent hover:opacity-80">
+            Clientes / Proveedores
+          </a>
+          ).
         </p>
       )}
 
-      {seleccionadas.size > 0 && (agente.iva || agente.ganancias || agente.iibb || agente.suss) && (
+      {seleccionadas.size > 0 && (muestraIva || muestraGanancias || muestraIibb || muestraSuss) && (
         <div className="rounded-lg border bg-surface p-4 shadow-sm">
           <h2 className="mb-1 text-sm font-medium text-ink">Retenciones</h2>
           <p className="mb-3 text-xs text-ink-soft">
-            Las alícuotas reales dependen de la categoría del proveedor ante AFIP/ARBA. Estos botones
-            solo sugieren un monto sobre el total — revisalo antes de confirmar.
+            Alícuotas configuradas en la ficha de este proveedor — revisalas antes de confirmar.
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {agente.iva && (
+            {muestraIva && (
               <div>
                 <label className="block text-xs font-medium text-ink-soft">Retención IVA</label>
-                <div className="mt-1 flex gap-1">
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={retencionIva}
-                    onChange={(e) => setRetencionIva(Number(e.target.value))}
-                    className="w-full rounded-md border border-line px-2 py-1.5 text-sm"
-                  />
-                </div>
-                <div className="mt-1 flex gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setRetencionIva(Math.round(total * 0.21 * 100) / 100)}
-                    className="text-xs text-accent hover:opacity-80"
-                  >
-                    21%
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRetencionIva(Math.round(total * 0.105 * 100) / 100)}
-                    className="text-xs text-accent hover:opacity-80"
-                  >
-                    10.5%
-                  </button>
-                </div>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={retencionIva}
+                  onChange={(e) => setRetencionIva(Number(e.target.value))}
+                  className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setRetencionIva(Math.round(total * (proveedorInfo.tasa_retencion_iva / 100) * 100) / 100)
+                  }
+                  className="mt-1 text-xs text-accent hover:opacity-80"
+                >
+                  Aplicar {proveedorInfo.tasa_retencion_iva}%
+                </button>
               </div>
             )}
-            {agente.ganancias && (
+            {muestraGanancias && (
               <div>
                 <label className="block text-xs font-medium text-ink-soft">Retención Ganancias</label>
                 <input
@@ -287,14 +296,18 @@ export default function OrdenPagoForm({
                 />
                 <button
                   type="button"
-                  onClick={() => setRetencionGanancias(Math.round(total * 0.02 * 100) / 100)}
+                  onClick={() =>
+                    setRetencionGanancias(
+                      Math.round(total * (proveedorInfo.tasa_retencion_ganancias / 100) * 100) / 100
+                    )
+                  }
                   className="mt-1 text-xs text-accent hover:opacity-80"
                 >
-                  2%
+                  Aplicar {proveedorInfo.tasa_retencion_ganancias}%
                 </button>
               </div>
             )}
-            {agente.iibb && (
+            {muestraIibb && (
               <div>
                 <label className="block text-xs font-medium text-ink-soft">Retención IIBB</label>
                 <input
@@ -306,14 +319,16 @@ export default function OrdenPagoForm({
                 />
                 <button
                   type="button"
-                  onClick={() => setRetencionIibb(Math.round(total * 0.03 * 100) / 100)}
+                  onClick={() =>
+                    setRetencionIibb(Math.round(total * (proveedorInfo.tasa_retencion_iibb / 100) * 100) / 100)
+                  }
                   className="mt-1 text-xs text-accent hover:opacity-80"
                 >
-                  3%
+                  Aplicar {proveedorInfo.tasa_retencion_iibb}%
                 </button>
               </div>
             )}
-            {agente.suss && (
+            {muestraSuss && (
               <div>
                 <label className="block text-xs font-medium text-ink-soft">Retención SUSS</label>
                 <input
@@ -325,10 +340,12 @@ export default function OrdenPagoForm({
                 />
                 <button
                   type="button"
-                  onClick={() => setRetencionSuss(Math.round(total * 0.025 * 100) / 100)}
+                  onClick={() =>
+                    setRetencionSuss(Math.round(total * (proveedorInfo.tasa_retencion_suss / 100) * 100) / 100)
+                  }
                   className="mt-1 text-xs text-accent hover:opacity-80"
                 >
-                  2.5%
+                  Aplicar {proveedorInfo.tasa_retencion_suss}%
                 </button>
               </div>
             )}
