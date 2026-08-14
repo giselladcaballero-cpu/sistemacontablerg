@@ -46,6 +46,8 @@ interface Empresa {
   agente_retencion_iibb: boolean;
   agente_percepcion_iva: boolean;
   agente_percepcion_iibb: boolean;
+  es_empleador: boolean;
+  retenciones_sicoss: boolean;
 }
 
 export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esAdmin: boolean }) {
@@ -64,6 +66,8 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
   const [agenteRetIibb, setAgenteRetIibb] = useState(empresa.agente_retencion_iibb);
   const [agentePercIva, setAgentePercIva] = useState(empresa.agente_percepcion_iva);
   const [agentePercIibb, setAgentePercIibb] = useState(empresa.agente_percepcion_iibb);
+  const [esEmpleador, setEsEmpleador] = useState(empresa.es_empleador);
+  const [retencionesSicoss, setRetencionesSicoss] = useState(empresa.retenciones_sicoss);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +103,8 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
         agente_retencion_iibb: agenteRetIibb,
         agente_percepcion_iva: agentePercIva,
         agente_percepcion_iibb: agentePercIibb,
+        es_empleador: esEmpleador,
+        retenciones_sicoss: retencionesSicoss,
       })
       .eq("id", empresa.id);
 
@@ -195,6 +201,24 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
                 {j}
               </label>
             ))}
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-surface p-4 shadow-sm">
+          <h2 className="mb-3 text-sm font-medium text-ink">Régimen Laboral</h2>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm text-ink-soft">
+              <input type="checkbox" checked={esEmpleador} onChange={(e) => setEsEmpleador(e.target.checked)} />
+              Es empleador (tiene personal en relación de dependencia)
+            </label>
+            <label className="flex items-center gap-2 text-sm text-ink-soft">
+              <input
+                type="checkbox"
+                checked={retencionesSicoss}
+                onChange={(e) => setRetencionesSicoss(e.target.checked)}
+              />
+              Practica retenciones de SICOSS (aportes y contribuciones de la seguridad social)
+            </label>
           </div>
         </div>
 

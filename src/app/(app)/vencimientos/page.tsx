@@ -10,7 +10,7 @@ export default async function VencimientosPage() {
   const empresaActual = await getEmpresaActual();
   const [{ data: vencimientos }, { data: empresa }] = await Promise.all([
     supabase.from("vencimientos_impositivos").select("*").order("fecha_vencimiento", { ascending: true }),
-    supabase.from("empresas").select("cuit").eq("id", empresaActual!.id).single(),
+    supabase.from("empresas").select("cuit, es_empleador").eq("id", empresaActual!.id).single(),
   ]);
 
   const hoy = new Date().toISOString().slice(0, 10);
@@ -32,7 +32,7 @@ export default async function VencimientosPage() {
       .or(`cuit_terminaciones.eq.{},cuit_terminaciones.cs.{${terminacion}}`)
       .gte("fecha", hoy)
       .order("fecha", { ascending: true });
-    cronograma = data ?? [];
+    cronograma = (data ?? []).filter((item) => empresa?.es_empleador || item.concepto !== "Empleadores (SUSS)");
   }
 
   const yaAgregados = (vencimientos ?? []).map((v) => `${v.concepto}|${v.fecha_vencimiento}`);
