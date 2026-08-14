@@ -10,7 +10,13 @@ export default async function VencimientosPage() {
   const empresaActual = await getEmpresaActual();
   const [{ data: vencimientos }, { data: empresa }] = await Promise.all([
     supabase.from("vencimientos_impositivos").select("*").order("fecha_vencimiento", { ascending: true }),
-    supabase.from("empresas").select("cuit, es_empleador").eq("id", empresaActual!.id).single(),
+    supabase
+      .from("empresas")
+      .select(
+        "cuit, es_empleador, agente_retencion_iva, agente_retencion_ganancias, agente_retencion_iibb, agente_percepcion_iva, agente_percepcion_iibb"
+      )
+      .eq("id", empresaActual!.id)
+      .single(),
   ]);
 
   const hoy = new Date().toISOString().slice(0, 10);
@@ -24,15 +30,26 @@ export default async function VencimientosPage() {
   const cuitDigits = (empresa?.cuit ?? "").replace(/\D/g, "");
   const terminacion = cuitDigits.length > 0 ? Number(cuitDigits[cuitDigits.length - 1]) : null;
 
-  let cronograma: { id: string; concepto: string; fecha: string; cuit_terminaciones: number[] }[] = [];
+  const esAgente =
+    !!empresa?.agente_retencion_iva ||
+    !!empresa?.agente_retencion_ganancias ||
+    !!empresa?.agente_retencion_iibb ||
+    !!empresa?.agente_percepcion_iva ||
+    !!empresa?.agente_percepcion_iibb;
+
+  let cronograma: { id: string; concepto: string; fecha: string; cuit_terminaciones: number[]; requiere_agente: boolean }[] = [];
   if (terminacion !== null) {
     const { data } = await supabase
       .from("cronograma_vencimientos_arca")
-      .select("id, concepto, fecha, cuit_terminaciones")
+      .select("id, concepto, fecha, cuit_terminaciones, requiere_agente")
       .or(`cuit_terminaciones.eq.{},cuit_terminaciones.cs.{${terminacion}}`)
       .gte("fecha", hoy)
       .order("fecha", { ascending: true });
-    cronograma = (data ?? []).filter((item) => empresa?.es_empleador || item.concepto !== "Empleadores (SUSS)");
+    cronograma = (data ?? []).filter(
+      (item) =>
+        (empresa?.es_empleador || item.concepto !== "Empleadores (SUSS)") &&
+        (!item.requiere_agente || esAgente)
+    );
   }
 
   const yaAgregados = (vencimientos ?? []).map((v) => `${v.concepto}|${v.fecha_vencimiento}`);
