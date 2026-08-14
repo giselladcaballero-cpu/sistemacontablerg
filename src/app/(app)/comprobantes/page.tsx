@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import PageTitle from "@/components/page-title";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n);
@@ -16,7 +17,7 @@ export default async function ComprobantesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-ink">Comprobantes</h1>
+        <PageTitle>Comprobantes</PageTitle>
         <Link
           href="/comprobantes/nuevo"
           className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90"

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getEmpresaActual } from "@/lib/empresa";
+import PageTitle from "@/components/page-title";
 import ComprobanteForm from "./comprobante-form";
 
 export default async function NuevoComprobantePage() {
@@ -13,7 +14,7 @@ export default async function NuevoComprobantePage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-ink">Nuevo Comprobante</h1>
+      <PageTitle className="mb-6">Nuevo Comprobante</PageTitle>
       <ComprobanteForm terceros={terceros ?? []} empresaId={empresa!.id} />
     </div>
   );

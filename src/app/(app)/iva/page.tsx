@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import PageTitle from "@/components/page-title";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n);
@@ -78,7 +79,7 @@ export default async function LibroIvaPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-lg font-semibold text-ink">Libro IVA</h1>
+      <PageTitle>Libro IVA</PageTitle>
       <Tabla titulo="IVA Ventas" filas={ventas ?? []} />
       <Tabla titulo="IVA Compras" filas={compras ?? []} />
     </div>

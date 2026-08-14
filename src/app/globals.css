@@ -53,8 +53,10 @@ body {
   color: var(--color-ink);
 }
 
-*,
-::before,
-::after {
-  border-color: var(--color-line);
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-line);
+  }
 }

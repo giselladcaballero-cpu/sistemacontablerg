@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import PageTitle from "@/components/page-title";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n);
@@ -47,7 +48,7 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-ink">Dashboard</h1>
+      <PageTitle className="mb-6">Dashboard</PageTitle>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="rounded-lg border bg-surface p-4 shadow-sm">

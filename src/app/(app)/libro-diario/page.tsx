@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import PageTitle from "@/components/page-title";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("es-AR", { minimumFractionDigits: 2 }).format(n);
@@ -21,7 +22,7 @@ export default async function LibroDiarioPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-ink">Libro Diario</h1>
+      <PageTitle className="mb-6">Libro Diario</PageTitle>
       <div className="space-y-4">
         {Array.from(grouped.entries()).map(([asientoId, filas]) => {
           const head = filas![0];

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getEmpresaActual } from "@/lib/empresa";
+import PageTitle from "@/components/page-title";
 import CuentaBancariaForm from "./cuenta-form";
 import MovimientoForm from "./movimiento-form";
 
@@ -22,7 +23,7 @@ export default async function BancosPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-lg font-semibold text-ink">Bancos y Caja</h1>
+      <PageTitle>Bancos y Caja</PageTitle>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {(saldos ?? []).map((c) => (

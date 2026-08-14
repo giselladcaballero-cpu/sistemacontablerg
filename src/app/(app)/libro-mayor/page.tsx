@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import PageTitle from "@/components/page-title";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n);
@@ -10,7 +11,7 @@ export default async function LibroMayorPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-ink">Libro Mayor</h1>
+      <PageTitle className="mb-6">Libro Mayor</PageTitle>
       <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
         <table className="min-w-full divide-y divide-line text-sm">
           <thead className="bg-bg">

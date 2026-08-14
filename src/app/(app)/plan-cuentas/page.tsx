@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import PageTitle from "@/components/page-title";
 
 export default async function PlanCuentasPage() {
   const supabase = await createClient();
@@ -9,7 +10,7 @@ export default async function PlanCuentasPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-ink">Plan de Cuentas</h1>
+      <PageTitle className="mb-6">Plan de Cuentas</PageTitle>
       <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
         <table className="min-w-full divide-y divide-line text-sm">
           <thead className="bg-bg">

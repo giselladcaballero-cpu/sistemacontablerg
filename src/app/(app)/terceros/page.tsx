@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getEmpresaActual } from "@/lib/empresa";
+import PageTitle from "@/components/page-title";
 import TerceroForm from "./tercero-form";
 
 export default async function TercerosPage() {
@@ -12,7 +13,7 @@ export default async function TercerosPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-ink">Clientes / Proveedores</h1>
+      <PageTitle className="mb-6">Clientes / Proveedores</PageTitle>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">
           <TerceroForm empresaId={empresa!.id} />

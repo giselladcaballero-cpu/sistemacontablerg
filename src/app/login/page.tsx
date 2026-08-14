@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import PageTitle from "@/components/page-title";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,7 +47,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg px-4">
       <div className="w-full max-w-sm rounded-lg border bg-surface p-8 shadow-sm">
-        <h1 className="mb-1 text-xl font-semibold text-ink">Sistema Contable RG</h1>
+        <PageTitle className="mb-1">Sistema Contable RG</PageTitle>
         <p className="mb-6 text-sm text-ink-soft">
           {mode === "login" ? "Ingresá a tu cuenta" : "Creá tu cuenta"}
         </p>
