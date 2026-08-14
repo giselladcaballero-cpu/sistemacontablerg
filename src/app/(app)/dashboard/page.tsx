@@ -48,7 +48,7 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <PageTitle className="mb-6">Dashboard</PageTitle>
+      <PageTitle className="mb-6">Resumen</PageTitle>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="rounded-lg border bg-surface p-4 shadow-sm">
