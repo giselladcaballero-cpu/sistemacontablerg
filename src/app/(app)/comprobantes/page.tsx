@@ -16,49 +16,49 @@ export default async function ComprobantesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-gray-900">Comprobantes</h1>
+        <h1 className="text-lg font-semibold text-ink">Comprobantes</h1>
         <Link
           href="/comprobantes/nuevo"
-          className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90"
         >
           + Nuevo Comprobante
         </Link>
       </div>
-      <div className="overflow-x-auto rounded-lg border bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+      <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
+        <table className="min-w-full divide-y divide-line text-sm">
+          <thead className="bg-bg">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Fecha</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Tipo</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">N°</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Tercero</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Dirección</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500">Total</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Estado</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Fecha</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Tipo</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">N°</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Tercero</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Dirección</th>
+              <th className="px-3 py-2 text-right font-medium text-ink-soft">Total</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Estado</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-line">
             {(comprobantes ?? []).map((c) => (
               <tr key={c.id}>
-                <td className="px-3 py-2 text-gray-600">{c.fecha}</td>
-                <td className="px-3 py-2 uppercase text-gray-600">{c.tipo.replace("_", " ")}</td>
-                <td className="px-3 py-2 text-gray-600">
+                <td className="px-3 py-2 text-ink-soft">{c.fecha}</td>
+                <td className="px-3 py-2 uppercase text-ink-soft">{c.tipo.replace("_", " ")}</td>
+                <td className="px-3 py-2 text-ink-soft">
                   {c.punto_venta.toString().padStart(4, "0")}-
                   {(c.numero ?? 0).toString().padStart(8, "0")}
                 </td>
-                <td className="px-3 py-2 text-gray-900">
+                <td className="px-3 py-2 text-ink">
                   {(c.terceros as { razon_social: string } | null)?.razon_social ?? "-"}
                 </td>
-                <td className="px-3 py-2 capitalize text-gray-600">{c.direccion}</td>
-                <td className="px-3 py-2 text-right text-gray-900">{fmt(Number(c.total))}</td>
+                <td className="px-3 py-2 capitalize text-ink-soft">{c.direccion}</td>
+                <td className="px-3 py-2 text-right text-ink">{fmt(Number(c.total))}</td>
                 <td className="px-3 py-2">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs ${
                       c.estado === "confirmado" || c.estado === "cobrado" || c.estado === "pagado"
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-accent-soft text-accent-soft-ink"
                         : c.estado === "anulado"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-gray-100 text-gray-600"
+                          ? "bg-danger-soft text-danger"
+                          : "bg-surface-muted text-ink-soft"
                     }`}
                   >
                     {c.estado}
@@ -68,7 +68,7 @@ export default async function ComprobantesPage() {
             ))}
             {(comprobantes ?? []).length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-6 text-center text-gray-400">
+                <td colSpan={7} className="px-3 py-6 text-center text-ink-soft">
                   Sin comprobantes todavía
                 </td>
               </tr>

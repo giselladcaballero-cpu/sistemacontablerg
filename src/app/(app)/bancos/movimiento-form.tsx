@@ -41,14 +41,14 @@ export default function MovimientoForm({ cuentas }: { cuentas: { id: string; nom
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-medium text-gray-900">Nuevo Movimiento</h2>
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-surface p-4 shadow-sm">
+      <h2 className="text-sm font-medium text-ink">Nuevo Movimiento</h2>
       <div>
-        <label className="block text-xs font-medium text-gray-600">Cuenta</label>
+        <label className="block text-xs font-medium text-ink-soft">Cuenta</label>
         <select
           value={cuentaId}
           onChange={(e) => setCuentaId(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         >
           <option value="">Seleccionar...</option>
           {cuentas.map((c) => (
@@ -59,51 +59,51 @@ export default function MovimientoForm({ cuentas }: { cuentas: { id: string; nom
         </select>
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600">Fecha</label>
+        <label className="block text-xs font-medium text-ink-soft">Fecha</label>
         <input
           type="date"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600">Descripción</label>
+        <label className="block text-xs font-medium text-ink-soft">Descripción</label>
         <input
           required
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         />
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-xs font-medium text-gray-600">Tipo</label>
+          <label className="block text-xs font-medium text-ink-soft">Tipo</label>
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value as "ingreso" | "egreso")}
-            className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
           >
             <option value="ingreso">Ingreso</option>
             <option value="egreso">Egreso</option>
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600">Importe</label>
+          <label className="block text-xs font-medium text-ink-soft">Importe</label>
           <input
             type="number"
             step="0.01"
             value={importe}
             onChange={(e) => setImporte(Number(e.target.value))}
-            className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
           />
         </div>
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+        className="w-full rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
       >
         {loading ? "Guardando..." : "Guardar"}
       </button>

@@ -10,28 +10,28 @@ export default async function LibroMayorPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-gray-900">Libro Mayor</h1>
-      <div className="overflow-x-auto rounded-lg border bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+      <h1 className="mb-6 text-lg font-semibold text-ink">Libro Mayor</h1>
+      <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
+        <table className="min-w-full divide-y divide-line text-sm">
+          <thead className="bg-bg">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Código</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Cuenta</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500">Debe</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500">Haber</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500">Saldo</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Código</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Cuenta</th>
+              <th className="px-3 py-2 text-right font-medium text-ink-soft">Debe</th>
+              <th className="px-3 py-2 text-right font-medium text-ink-soft">Haber</th>
+              <th className="px-3 py-2 text-right font-medium text-ink-soft">Saldo</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-line">
             {(cuentas ?? []).map((c) => (
               <tr key={c.cuenta_id}>
-                <td className="px-3 py-2 text-gray-600">{c.codigo}</td>
-                <td className="px-3 py-2 text-gray-900">{c.nombre}</td>
-                <td className="px-3 py-2 text-right text-gray-600">{fmt(Number(c.total_debe))}</td>
-                <td className="px-3 py-2 text-right text-gray-600">{fmt(Number(c.total_haber))}</td>
+                <td className="px-3 py-2 text-ink-soft">{c.codigo}</td>
+                <td className="px-3 py-2 text-ink">{c.nombre}</td>
+                <td className="px-3 py-2 text-right text-ink-soft">{fmt(Number(c.total_debe))}</td>
+                <td className="px-3 py-2 text-right text-ink-soft">{fmt(Number(c.total_haber))}</td>
                 <td
                   className={`px-3 py-2 text-right font-medium ${
-                    Number(c.saldo) < 0 ? "text-red-600" : "text-gray-900"
+                    Number(c.saldo) < 0 ? "text-danger" : "text-ink"
                   }`}
                 >
                   {fmt(Number(c.saldo))}

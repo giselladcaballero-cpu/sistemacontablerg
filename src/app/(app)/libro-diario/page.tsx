@@ -21,17 +21,17 @@ export default async function LibroDiarioPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-gray-900">Libro Diario</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Libro Diario</h1>
       <div className="space-y-4">
         {Array.from(grouped.entries()).map(([asientoId, filas]) => {
           const head = filas![0];
           return (
-            <div key={asientoId} className="rounded-lg border bg-white p-4 shadow-sm">
+            <div key={asientoId} className="rounded-lg border bg-surface p-4 shadow-sm">
               <div className="mb-2 flex items-center justify-between text-sm">
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-ink">
                   #{head.numero} — {head.descripcion}
                 </p>
-                <p className="text-gray-500">
+                <p className="text-ink-soft">
                   {head.fecha} · {head.origen}
                   {head.anulado ? " · ANULADO" : ""}
                 </p>
@@ -39,15 +39,15 @@ export default async function LibroDiarioPage() {
               <table className="min-w-full text-sm">
                 <tbody>
                   {filas!.map((f) => (
-                    <tr key={f.linea_id} className="border-t border-gray-100">
-                      <td className="py-1 pr-4 text-gray-600">
+                    <tr key={f.linea_id} className="border-t border-line">
+                      <td className="py-1 pr-4 text-ink-soft">
                         {f.cuenta_codigo} {f.cuenta_nombre}
                       </td>
-                      <td className="py-1 pr-4 text-gray-500">{f.tercero ?? ""}</td>
-                      <td className="py-1 pr-4 text-right text-gray-900">
+                      <td className="py-1 pr-4 text-ink-soft">{f.tercero ?? ""}</td>
+                      <td className="py-1 pr-4 text-right text-ink">
                         {Number(f.debe) > 0 ? fmt(Number(f.debe)) : ""}
                       </td>
-                      <td className="py-1 text-right text-gray-900">
+                      <td className="py-1 text-right text-ink">
                         {Number(f.haber) > 0 ? fmt(Number(f.haber)) : ""}
                       </td>
                     </tr>
@@ -58,7 +58,7 @@ export default async function LibroDiarioPage() {
           );
         })}
         {grouped.size === 0 && (
-          <p className="text-center text-gray-400">Sin asientos todavía</p>
+          <p className="text-center text-ink-soft">Sin asientos todavía</p>
         )}
       </div>
     </div>

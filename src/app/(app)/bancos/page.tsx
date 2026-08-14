@@ -22,15 +22,15 @@ export default async function BancosPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-lg font-semibold text-gray-900">Bancos y Caja</h1>
+      <h1 className="text-lg font-semibold text-ink">Bancos y Caja</h1>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {(saldos ?? []).map((c) => (
-          <div key={c.id} className="rounded-lg border bg-white p-4 shadow-sm">
-            <p className="text-xs text-gray-500">
+          <div key={c.id} className="rounded-lg border bg-surface p-4 shadow-sm">
+            <p className="text-xs text-ink-soft">
               {c.nombre} {c.banco ? `· ${c.banco}` : ""}
             </p>
-            <p className="mt-1 text-xl font-semibold text-gray-900">
+            <p className="mt-1 text-xl font-semibold text-ink">
               {fmt(Number(c.saldo_actual))}
             </p>
           </div>
@@ -43,27 +43,27 @@ export default async function BancosPage() {
           <MovimientoForm cuentas={cuentas ?? []} />
         </div>
         <div className="lg:col-span-2">
-          <div className="overflow-x-auto rounded-lg border bg-white shadow-sm">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50">
+          <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
+            <table className="min-w-full divide-y divide-line text-sm">
+              <thead className="bg-bg">
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">Fecha</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">Cuenta</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">Descripción</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Importe</th>
+                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Fecha</th>
+                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Cuenta</th>
+                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Descripción</th>
+                  <th className="px-3 py-2 text-right font-medium text-ink-soft">Importe</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-line">
                 {(movimientos ?? []).map((m) => (
                   <tr key={m.id}>
-                    <td className="px-3 py-2 text-gray-600">{m.fecha}</td>
-                    <td className="px-3 py-2 text-gray-600">
+                    <td className="px-3 py-2 text-ink-soft">{m.fecha}</td>
+                    <td className="px-3 py-2 text-ink-soft">
                       {(m.cuentas_bancarias as { nombre: string } | null)?.nombre ?? "-"}
                     </td>
-                    <td className="px-3 py-2 text-gray-900">{m.descripcion}</td>
+                    <td className="px-3 py-2 text-ink">{m.descripcion}</td>
                     <td
                       className={`px-3 py-2 text-right font-medium ${
-                        m.tipo === "ingreso" ? "text-green-600" : "text-red-600"
+                        m.tipo === "ingreso" ? "text-accent" : "text-danger"
                       }`}
                     >
                       {m.tipo === "ingreso" ? "+" : "-"}
@@ -73,7 +73,7 @@ export default async function BancosPage() {
                 ))}
                 {(movimientos ?? []).length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-3 py-6 text-center text-gray-400">
+                    <td colSpan={4} className="px-3 py-6 text-center text-ink-soft">
                       Sin movimientos todavía
                     </td>
                   </tr>

@@ -35,40 +35,40 @@ export default function CuentaBancariaForm({ empresaId }: { empresaId: string })
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-medium text-gray-900">Nueva Cuenta / Caja</h2>
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-surface p-4 shadow-sm">
+      <h2 className="text-sm font-medium text-ink">Nueva Cuenta / Caja</h2>
       <div>
-        <label className="block text-xs font-medium text-gray-600">Nombre</label>
+        <label className="block text-xs font-medium text-ink-soft">Nombre</label>
         <input
           required
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600">Banco</label>
+        <label className="block text-xs font-medium text-ink-soft">Banco</label>
         <input
           value={banco}
           onChange={(e) => setBanco(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600">Saldo Inicial</label>
+        <label className="block text-xs font-medium text-ink-soft">Saldo Inicial</label>
         <input
           type="number"
           step="0.01"
           value={saldoInicial}
           onChange={(e) => setSaldoInicial(Number(e.target.value))}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         />
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+        className="w-full rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
       >
         {loading ? "Guardando..." : "Guardar"}
       </button>

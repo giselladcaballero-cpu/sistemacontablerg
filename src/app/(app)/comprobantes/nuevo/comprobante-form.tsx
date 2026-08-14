@@ -139,24 +139,24 @@ export default function ComprobanteForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 rounded-lg border bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 rounded-lg border bg-surface p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <label className="block text-xs font-medium text-gray-600">Dirección</label>
+          <label className="block text-xs font-medium text-ink-soft">Dirección</label>
           <select
             value={direccion}
             onChange={(e) => setDireccion(e.target.value as DireccionComprobante)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
           >
             <option value="venta">Venta</option>
             <option value="compra">Compra</option>
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600">Tipo</label>
+          <label className="block text-xs font-medium text-ink-soft">Tipo</label>
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value as TipoComprobante)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
           >
             {TIPOS.map((t) => (
               <option key={t.value} value={t.value}>
@@ -166,30 +166,30 @@ export default function ComprobanteForm({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600">Punto de Venta</label>
+          <label className="block text-xs font-medium text-ink-soft">Punto de Venta</label>
           <input
             type="number"
             min={1}
             value={puntoVenta}
             onChange={(e) => setPuntoVenta(Number(e.target.value))}
-            className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600">Fecha</label>
+          <label className="block text-xs font-medium text-ink-soft">Fecha</label>
           <input
             type="date"
             value={fecha}
             onChange={(e) => setFecha(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600">Cliente / Proveedor</label>
+          <label className="block text-xs font-medium text-ink-soft">Cliente / Proveedor</label>
           <select
             value={terceroId}
             onChange={(e) => setTerceroId(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
           >
             <option value="">Seleccionar...</option>
             {terceros.map((t) => (
@@ -200,11 +200,11 @@ export default function ComprobanteForm({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600">Condición</label>
+          <label className="block text-xs font-medium text-ink-soft">Condición</label>
           <select
             value={condicionVenta}
             onChange={(e) => setCondicionVenta(e.target.value as CondicionVenta)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
           >
             <option value="contado">Contado</option>
             <option value="cuenta_corriente">Cuenta Corriente</option>
@@ -212,13 +212,13 @@ export default function ComprobanteForm({
         </div>
       </div>
 
-      <div className="rounded-lg border bg-white p-4 shadow-sm">
+      <div className="rounded-lg border bg-surface p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-gray-900">Ítems</h2>
+          <h2 className="text-sm font-medium text-ink">Ítems</h2>
           <button
             type="button"
             onClick={addItem}
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="text-sm text-ink-soft hover:text-ink"
           >
             + Agregar ítem
           </button>
@@ -230,7 +230,7 @@ export default function ComprobanteForm({
                 placeholder="Descripción"
                 value={item.descripcion}
                 onChange={(e) => updateItem(idx, { descripcion: e.target.value })}
-                className="col-span-5 rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+                className="col-span-5 rounded-md border border-line px-2 py-1.5 text-sm"
               />
               <input
                 type="number"
@@ -239,7 +239,7 @@ export default function ComprobanteForm({
                 placeholder="Cant."
                 value={item.cantidad}
                 onChange={(e) => updateItem(idx, { cantidad: Number(e.target.value) })}
-                className="col-span-2 rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+                className="col-span-2 rounded-md border border-line px-2 py-1.5 text-sm"
               />
               <input
                 type="number"
@@ -248,12 +248,12 @@ export default function ComprobanteForm({
                 placeholder="Precio Unit."
                 value={item.precio_unitario}
                 onChange={(e) => updateItem(idx, { precio_unitario: Number(e.target.value) })}
-                className="col-span-2 rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+                className="col-span-2 rounded-md border border-line px-2 py-1.5 text-sm"
               />
               <select
                 value={item.alicuota_iva}
                 onChange={(e) => updateItem(idx, { alicuota_iva: Number(e.target.value) })}
-                className="col-span-2 rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+                className="col-span-2 rounded-md border border-line px-2 py-1.5 text-sm"
               >
                 <option value={0}>0%</option>
                 <option value={10.5}>10.5%</option>
@@ -263,7 +263,7 @@ export default function ComprobanteForm({
               <button
                 type="button"
                 onClick={() => removeItem(idx)}
-                className="col-span-1 text-sm text-red-500 hover:text-red-700"
+                className="col-span-1 text-sm text-danger hover:text-danger"
               >
                 ✕
               </button>
@@ -284,7 +284,7 @@ export default function ComprobanteForm({
       </div>
 
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-sm text-ink">
           <input
             type="checkbox"
             checked={confirmarYa}
@@ -293,11 +293,11 @@ export default function ComprobanteForm({
           Confirmar y generar asiento contable automáticamente
         </label>
         <div className="flex items-center gap-3">
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
           >
             {loading ? "Guardando..." : "Guardar Comprobante"}
           </button>

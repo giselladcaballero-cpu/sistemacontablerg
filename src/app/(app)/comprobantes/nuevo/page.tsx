@@ -13,7 +13,7 @@ export default async function NuevoComprobantePage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-gray-900">Nuevo Comprobante</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Nuevo Comprobante</h1>
       <ComprobanteForm terceros={terceros ?? []} empresaId={empresa!.id} />
     </div>
   );

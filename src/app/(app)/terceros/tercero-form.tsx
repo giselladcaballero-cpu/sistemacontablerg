@@ -37,23 +37,23 @@ export default function TerceroForm({ empresaId }: { empresaId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-medium text-gray-900">Nuevo</h2>
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-surface p-4 shadow-sm">
+      <h2 className="text-sm font-medium text-ink">Nuevo</h2>
       <div>
-        <label className="block text-xs font-medium text-gray-600">Razón Social</label>
+        <label className="block text-xs font-medium text-ink-soft">Razón Social</label>
         <input
           required
           value={razonSocial}
           onChange={(e) => setRazonSocial(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600">Tipo</label>
+        <label className="block text-xs font-medium text-ink-soft">Tipo</label>
         <select
           value={tipo}
           onChange={(e) => setTipo(e.target.value as TipoTercero)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         >
           <option value="cliente">Cliente</option>
           <option value="proveedor">Proveedor</option>
@@ -61,19 +61,19 @@ export default function TerceroForm({ empresaId }: { empresaId: string }) {
         </select>
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600">CUIT</label>
+        <label className="block text-xs font-medium text-ink-soft">CUIT</label>
         <input
           value={cuit}
           onChange={(e) => setCuit(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600">Condición IVA</label>
+        <label className="block text-xs font-medium text-ink-soft">Condición IVA</label>
         <select
           value={condicionIva}
           onChange={(e) => setCondicionIva(e.target.value as CondicionIva)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
         >
           <option value="responsable_inscripto">Responsable Inscripto</option>
           <option value="monotributo">Monotributo</option>
@@ -82,11 +82,11 @@ export default function TerceroForm({ empresaId }: { empresaId: string }) {
           <option value="no_categorizado">No Categorizado</option>
         </select>
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+        className="w-full rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
       >
         {loading ? "Guardando..." : "Guardar"}
       </button>

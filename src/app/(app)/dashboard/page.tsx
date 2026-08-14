@@ -47,14 +47,14 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-gray-900">Dashboard</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Dashboard</h1>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-lg border bg-white p-4 shadow-sm">
-            <p className="text-xs text-gray-500">{c.label}</p>
+          <div key={c.label} className="rounded-lg border bg-surface p-4 shadow-sm">
+            <p className="text-xs text-ink-soft">{c.label}</p>
             <p
               className={`mt-1 text-xl font-semibold ${
-                c.value < 0 ? "text-red-600" : "text-gray-900"
+                c.value < 0 ? "text-danger" : "text-ink"
               }`}
             >
               {fmt(c.value)}

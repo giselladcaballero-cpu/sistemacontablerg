@@ -9,26 +9,26 @@ export default async function PlanCuentasPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-gray-900">Plan de Cuentas</h1>
-      <div className="overflow-x-auto rounded-lg border bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+      <h1 className="mb-6 text-lg font-semibold text-ink">Plan de Cuentas</h1>
+      <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
+        <table className="min-w-full divide-y divide-line text-sm">
+          <thead className="bg-bg">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Código</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Nombre</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Tipo</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Naturaleza</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Imputable</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Código</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Nombre</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Tipo</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Naturaleza</th>
+              <th className="px-3 py-2 text-left font-medium text-ink-soft">Imputable</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-line">
             {(cuentas ?? []).map((c) => (
-              <tr key={c.id} className={c.imputable ? "" : "bg-gray-50 font-medium"}>
-                <td className="px-3 py-2 text-gray-600">{c.codigo}</td>
-                <td className="px-3 py-2 text-gray-900">{c.nombre}</td>
-                <td className="px-3 py-2 capitalize text-gray-600">{c.tipo.replace("_", " ")}</td>
-                <td className="px-3 py-2 capitalize text-gray-600">{c.naturaleza}</td>
-                <td className="px-3 py-2 text-gray-600">{c.imputable ? "Sí" : "No"}</td>
+              <tr key={c.id} className={c.imputable ? "" : "bg-bg font-medium"}>
+                <td className="px-3 py-2 text-ink-soft">{c.codigo}</td>
+                <td className="px-3 py-2 text-ink">{c.nombre}</td>
+                <td className="px-3 py-2 capitalize text-ink-soft">{c.tipo.replace("_", " ")}</td>
+                <td className="px-3 py-2 capitalize text-ink-soft">{c.naturaleza}</td>
+                <td className="px-3 py-2 text-ink-soft">{c.imputable ? "Sí" : "No"}</td>
               </tr>
             ))}
           </tbody>
