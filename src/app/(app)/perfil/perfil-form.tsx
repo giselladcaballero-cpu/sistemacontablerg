@@ -217,7 +217,8 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
                 checked={retencionesSicoss}
                 onChange={(e) => setRetencionesSicoss(e.target.checked)}
               />
-              Practica retenciones de SICOSS (aportes y contribuciones de la seguridad social)
+              Retiene aportes de la seguridad social a sus empleados (SICOSS/F.931 — jubilación, obra
+              social, PAMI del sueldo del empleado, distinto de las contribuciones patronales)
             </label>
           </div>
         </div>
