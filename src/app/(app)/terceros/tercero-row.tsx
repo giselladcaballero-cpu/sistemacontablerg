@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { CondicionIva, TipoTercero } from "@/lib/types";
+import { TASAS_IIBB } from "@/lib/iibb";
 
 interface Cuenta {
   id: string;
@@ -252,14 +253,18 @@ export default function TerceroRow({ tercero, cuentas }: { tercero: Tercero; cue
                   Retención IIBB
                 </label>
                 {sujetoIibb && (
-                  <input
-                    type="number"
-                    step="0.01"
+                  <select
                     value={tasaIibb}
                     onChange={(e) => setTasaIibb(Number(e.target.value))}
-                    placeholder="Tasa %"
                     className="w-full rounded-md border border-line px-2 py-1 text-sm"
-                  />
+                  >
+                    <option value={0}>Elegir tasa...</option>
+                    {TASAS_IIBB.map((t) => (
+                      <option key={t} value={t}>
+                        {t}%
+                      </option>
+                    ))}
+                  </select>
                 )}
               </div>
               <div className="space-y-1.5">
