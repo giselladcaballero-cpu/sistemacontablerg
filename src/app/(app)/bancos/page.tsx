@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getEmpresaActual } from "@/lib/empresa";
 import CuentaBancariaForm from "./cuenta-form";
 import MovimientoForm from "./movimiento-form";
 
@@ -8,6 +9,7 @@ function fmt(n: number) {
 
 export default async function BancosPage() {
   const supabase = await createClient();
+  const empresa = await getEmpresaActual();
   const [{ data: saldos }, { data: cuentas }, { data: movimientos }] = await Promise.all([
     supabase.from("v_saldos_bancarios").select("*"),
     supabase.from("cuentas_bancarias").select("id, nombre").eq("activa", true),
@@ -37,7 +39,7 @@ export default async function BancosPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
-          <CuentaBancariaForm />
+          <CuentaBancariaForm empresaId={empresa!.id} />
           <MovimientoForm cuentas={cuentas ?? []} />
         </div>
         <div className="lg:col-span-2">

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function CuentaBancariaForm() {
+export default function CuentaBancariaForm({ empresaId }: { empresaId: string }) {
   const router = useRouter();
   const supabase = createClient();
   const [nombre, setNombre] = useState("");
@@ -18,6 +18,7 @@ export default function CuentaBancariaForm() {
     setLoading(true);
     setError(null);
     const { error } = await supabase.from("cuentas_bancarias").insert({
+      empresa_id: empresaId,
       nombre,
       banco: banco || null,
       saldo_inicial: saldoInicial,

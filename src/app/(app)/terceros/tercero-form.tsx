@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { CondicionIva, TipoTercero } from "@/lib/types";
 
-export default function TerceroForm() {
+export default function TerceroForm({ empresaId }: { empresaId: string }) {
   const router = useRouter();
   const supabase = createClient();
   const [razonSocial, setRazonSocial] = useState("");
@@ -20,6 +20,7 @@ export default function TerceroForm() {
     setLoading(true);
     setError(null);
     const { error } = await supabase.from("terceros").insert({
+      empresa_id: empresaId,
       razon_social: razonSocial,
       tipo,
       cuit: cuit || null,

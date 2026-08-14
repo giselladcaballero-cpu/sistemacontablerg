@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { getEmpresaActual } from "@/lib/empresa";
 import TerceroForm from "./tercero-form";
 
 export default async function TercerosPage() {
   const supabase = await createClient();
+  const empresa = await getEmpresaActual();
   const { data: terceros } = await supabase
     .from("terceros")
     .select("*")
@@ -13,7 +15,7 @@ export default async function TercerosPage() {
       <h1 className="mb-6 text-lg font-semibold text-gray-900">Clientes / Proveedores</h1>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">
-          <TerceroForm />
+          <TerceroForm empresaId={empresa!.id} />
         </div>
         <div className="lg:col-span-2">
           <div className="overflow-x-auto rounded-lg border bg-white shadow-sm">

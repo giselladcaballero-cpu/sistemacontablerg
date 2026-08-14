@@ -27,8 +27,10 @@ const TIPOS: { value: TipoComprobante; label: string }[] = [
 
 export default function ComprobanteForm({
   terceros,
+  empresaId,
 }: {
   terceros: { id: string; razon_social: string; tipo: string }[];
+  empresaId: string;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -84,6 +86,7 @@ export default function ComprobanteForm({
     const { data: comprobante, error: compError } = await supabase
       .from("comprobantes")
       .insert({
+        empresa_id: empresaId,
         direccion,
         tipo,
         punto_venta: puntoVenta,

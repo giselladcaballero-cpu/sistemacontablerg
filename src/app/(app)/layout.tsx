@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getEmpresaActual } from "@/lib/empresa";
 import SignOutButton from "./sign-out-button";
 
 const NAV = [
@@ -22,11 +23,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect("/login");
 
+  const empresa = await getEmpresaActual();
+  if (!empresa) redirect("/sin-acceso");
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <aside className="w-60 shrink-0 border-r bg-white">
         <div className="border-b px-4 py-4">
-          <p className="text-sm font-semibold text-gray-900">Sistema Contable RG</p>
+          <p className="text-sm font-semibold text-gray-900">{empresa.nombre}</p>
           <p className="truncate text-xs text-gray-500">{user.email}</p>
         </div>
         <nav className="flex flex-col gap-1 p-3">

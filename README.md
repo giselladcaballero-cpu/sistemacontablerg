@@ -1,12 +1,51 @@
 # Sistema Contable RG
 
-Sistema contable para Argentina, compartido entre 2 personas vía este repositorio + una base de datos Supabase común.
+Sistema contable para Argentina, multi-empresa (multi-tenant): un mismo proyecto Supabase
+sirve a varias empresas/clientes, con los datos de cada una completamente aislados por RLS.
 
 ## Stack
 
 - **Next.js 16** (App Router, TypeScript, Tailwind)
 - **Supabase** (Postgres + Auth) como base de datos compartida en la nube
 - Proyecto Supabase: `sistema-contable-rg` (org `rodrigoaaaatimoner-droid's Org`, región `sa-east-1`)
+
+## Modelo multi-empresa (para vender el sistema a otros clientes)
+
+Cada cliente que compra el sistema es una fila en `empresas`. Los usuarios se vinculan a
+una o más empresas a través de `empresa_usuarios` (con rol `admin` / `contador` / `lectura`).
+Todas las tablas de negocio (`plan_cuentas`, `terceros`, `comprobantes`, `asientos`,
+`cuentas_bancarias`, etc.) tienen `empresa_id`, y las políticas RLS solo dejan ver/editar
+filas de las empresas a las que el usuario pertenece — un cliente nunca puede ver los datos
+de otro, aunque compartan la misma base.
+
+### Dar de alta un cliente nuevo (alta manual, por SQL en Supabase)
+
+1. El usuario nuevo tiene que haberse registrado al menos una vez en `/login` (para que exista
+   su fila en `profiles`) — o se lo crea directamente por SQL/Auth Admin.
+2. Ejecutar en el SQL Editor del proyecto Supabase:
+   ```sql
+   select fn_provisionar_empresa('Nombre del Cliente SA', 'email@delcliente.com', '20-12345678-9');
+   ```
+   Esto crea la empresa, le copia el plan de cuentas estándar (49 cuentas) y, si ya existe un
+   usuario con ese email, lo vincula como admin. Si el usuario todavía no se registró, se puede
+   correr `fn_agregar_usuario_a_empresa('<empresa_id>', 'email@delcliente.com')` después de que
+   se registre.
+3. Para sumar más usuarios a una empresa ya creada (ej. un socio, un contador):
+   ```sql
+   select fn_agregar_usuario_a_empresa('<empresa_id>', 'otro@email.com', 'contador');
+   ```
+4. Si el registro por `/login` se cuelga por el límite de emails de confirmación de Supabase
+   (ver más abajo), confirmar el usuario a mano:
+   ```sql
+   update auth.users set email_confirmed_at = now() where email = 'email@delcliente.com';
+   ```
+
+### Dar de baja un cliente
+
+No hay cascada automática entre las tablas de negocio (a propósito, para no perder datos por
+error). Para borrar todo lo de una empresa, borrar en este orden:
+`comprobante_items → asiento_lineas → comprobantes → asientos → movimientos_bancarios →
+cuentas_bancarias → terceros → plan_cuentas → empresa_usuarios → empresas`.
 
 ## Cómo arrancar (para la segunda persona)
 
