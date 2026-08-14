@@ -6,10 +6,15 @@ import OrdenPagoForm from "./orden-pago-form";
 export default async function NuevaOrdenPagoPage() {
   const supabase = await createClient();
   const empresa = await getEmpresaActual();
-  const [{ data: facturas }, { data: cuentas }, { data: user }] = await Promise.all([
+  const [{ data: facturas }, { data: cuentas }, { data: user }, { data: empresaData }] = await Promise.all([
     supabase.from("v_facturas_pendientes_pago").select("*"),
     supabase.from("cuentas_bancarias").select("id, nombre").eq("activa", true).order("nombre"),
     supabase.auth.getUser(),
+    supabase
+      .from("empresas")
+      .select("agente_retencion_iva, agente_retencion_ganancias, agente_retencion_iibb")
+      .eq("id", empresa!.id)
+      .single(),
   ]);
 
   return (
@@ -20,6 +25,11 @@ export default async function NuevaOrdenPagoPage() {
         facturas={facturas ?? []}
         cuentas={cuentas ?? []}
         userId={user.user?.id ?? null}
+        agente={{
+          iva: empresaData?.agente_retencion_iva ?? false,
+          ganancias: empresaData?.agente_retencion_ganancias ?? false,
+          iibb: empresaData?.agente_retencion_iibb ?? false,
+        }}
       />
     </div>
   );

@@ -25,11 +25,13 @@ export default function OrdenPagoForm({
   facturas,
   cuentas,
   userId,
+  agente,
 }: {
   empresaId: string;
   facturas: Factura[];
   cuentas: { id: string; nombre: string }[];
   userId: string | null;
+  agente: { iva: boolean; ganancias: boolean; iibb: boolean };
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -222,7 +224,17 @@ export default function OrdenPagoForm({
         </div>
       )}
 
-      {seleccionadas.size > 0 && (
+      {seleccionadas.size > 0 && !agente.iva && !agente.ganancias && !agente.iibb && (
+        <p className="text-sm text-ink-soft">
+          Tu empresa no está marcada como agente de retención en el{" "}
+          <a href="/perfil" className="text-accent hover:opacity-80">
+            Perfil del Cliente
+          </a>
+          , así que no se practican retenciones en este pago.
+        </p>
+      )}
+
+      {seleccionadas.size > 0 && (agente.iva || agente.ganancias || agente.iibb) && (
         <div className="rounded-lg border bg-surface p-4 shadow-sm">
           <h2 className="mb-1 text-sm font-medium text-ink">Retenciones</h2>
           <p className="mb-3 text-xs text-ink-soft">
@@ -230,68 +242,74 @@ export default function OrdenPagoForm({
             solo sugieren un monto sobre el total — revisalo antes de confirmar.
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div>
-              <label className="block text-xs font-medium text-ink-soft">Retención IVA</label>
-              <div className="mt-1 flex gap-1">
+            {agente.iva && (
+              <div>
+                <label className="block text-xs font-medium text-ink-soft">Retención IVA</label>
+                <div className="mt-1 flex gap-1">
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={retencionIva}
+                    onChange={(e) => setRetencionIva(Number(e.target.value))}
+                    className="w-full rounded-md border border-line px-2 py-1.5 text-sm"
+                  />
+                </div>
+                <div className="mt-1 flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setRetencionIva(Math.round(total * 0.21 * 100) / 100)}
+                    className="text-xs text-accent hover:opacity-80"
+                  >
+                    21%
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRetencionIva(Math.round(total * 0.105 * 100) / 100)}
+                    className="text-xs text-accent hover:opacity-80"
+                  >
+                    10.5%
+                  </button>
+                </div>
+              </div>
+            )}
+            {agente.ganancias && (
+              <div>
+                <label className="block text-xs font-medium text-ink-soft">Retención Ganancias</label>
                 <input
                   type="number"
                   step="0.01"
-                  value={retencionIva}
-                  onChange={(e) => setRetencionIva(Number(e.target.value))}
-                  className="w-full rounded-md border border-line px-2 py-1.5 text-sm"
+                  value={retencionGanancias}
+                  onChange={(e) => setRetencionGanancias(Number(e.target.value))}
+                  className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
                 />
-              </div>
-              <div className="mt-1 flex gap-1">
                 <button
                   type="button"
-                  onClick={() => setRetencionIva(Math.round(total * 0.21 * 100) / 100)}
-                  className="text-xs text-accent hover:opacity-80"
+                  onClick={() => setRetencionGanancias(Math.round(total * 0.02 * 100) / 100)}
+                  className="mt-1 text-xs text-accent hover:opacity-80"
                 >
-                  21%
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRetencionIva(Math.round(total * 0.105 * 100) / 100)}
-                  className="text-xs text-accent hover:opacity-80"
-                >
-                  10.5%
+                  2%
                 </button>
               </div>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-ink-soft">Retención Ganancias</label>
-              <input
-                type="number"
-                step="0.01"
-                value={retencionGanancias}
-                onChange={(e) => setRetencionGanancias(Number(e.target.value))}
-                className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-              />
-              <button
-                type="button"
-                onClick={() => setRetencionGanancias(Math.round(total * 0.02 * 100) / 100)}
-                className="mt-1 text-xs text-accent hover:opacity-80"
-              >
-                2%
-              </button>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-ink-soft">Retención IIBB</label>
-              <input
-                type="number"
-                step="0.01"
-                value={retencionIibb}
-                onChange={(e) => setRetencionIibb(Number(e.target.value))}
-                className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-              />
-              <button
-                type="button"
-                onClick={() => setRetencionIibb(Math.round(total * 0.03 * 100) / 100)}
-                className="mt-1 text-xs text-accent hover:opacity-80"
-              >
-                3%
-              </button>
-            </div>
+            )}
+            {agente.iibb && (
+              <div>
+                <label className="block text-xs font-medium text-ink-soft">Retención IIBB</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={retencionIibb}
+                  onChange={(e) => setRetencionIibb(Number(e.target.value))}
+                  className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setRetencionIibb(Math.round(total * 0.03 * 100) / 100)}
+                  className="mt-1 text-xs text-accent hover:opacity-80"
+                >
+                  3%
+                </button>
+              </div>
+            )}
           </div>
           <div className="mt-4 flex justify-end gap-6 border-t pt-3 text-sm">
             <p>

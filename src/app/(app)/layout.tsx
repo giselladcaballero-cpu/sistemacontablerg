@@ -15,6 +15,7 @@ const NAV = [
   { href: "/iva", label: "Libro IVA" },
   { href: "/retenciones", label: "Retenciones" },
   { href: "/plan-cuentas", label: "Plan de Cuentas" },
+  { href: "/perfil", label: "Perfil del Cliente" },
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
