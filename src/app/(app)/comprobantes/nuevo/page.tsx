@@ -6,16 +6,19 @@ import ComprobanteForm from "./comprobante-form";
 export default async function NuevoComprobantePage() {
   const supabase = await createClient();
   const empresa = await getEmpresaActual();
-  const { data: terceros } = await supabase
-    .from("terceros")
-    .select("id, razon_social, tipo")
-    .eq("activo", true)
-    .order("razon_social");
+  const [{ data: terceros }, { data: cuentas }] = await Promise.all([
+    supabase
+      .from("terceros")
+      .select("id, razon_social, tipo, cuenta_gasto_id")
+      .eq("activo", true)
+      .order("razon_social"),
+    supabase.from("plan_cuentas").select("id, codigo, nombre").eq("imputable", true).order("codigo"),
+  ]);
 
   return (
     <div>
       <PageTitle className="mb-6">Nuevo Comprobante</PageTitle>
-      <ComprobanteForm terceros={terceros ?? []} empresaId={empresa!.id} />
+      <ComprobanteForm terceros={terceros ?? []} cuentas={cuentas ?? []} empresaId={empresa!.id} />
     </div>
   );
 }

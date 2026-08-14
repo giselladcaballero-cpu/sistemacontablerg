@@ -10,6 +10,20 @@ interface Item {
   cantidad: number;
   precio_unitario: number;
   alicuota_iva: number;
+  cuentaId: string;
+}
+
+interface Tercero {
+  id: string;
+  razon_social: string;
+  tipo: string;
+  cuenta_gasto_id: string | null;
+}
+
+interface Cuenta {
+  id: string;
+  codigo: string;
+  nombre: string;
 }
 
 const TIPOS: { value: TipoComprobante; label: string }[] = [
@@ -27,9 +41,11 @@ const TIPOS: { value: TipoComprobante; label: string }[] = [
 
 export default function ComprobanteForm({
   terceros,
+  cuentas,
   empresaId,
 }: {
-  terceros: { id: string; razon_social: string; tipo: string }[];
+  terceros: Tercero[];
+  cuentas: Cuenta[];
   empresaId: string;
 }) {
   const router = useRouter();
@@ -42,26 +58,40 @@ export default function ComprobanteForm({
   const [terceroId, setTerceroId] = useState("");
   const [condicionVenta, setCondicionVenta] = useState<CondicionVenta>("contado");
   const [items, setItems] = useState<Item[]>([
-    { descripcion: "", cantidad: 1, precio_unitario: 0, alicuota_iva: 21 },
+    { descripcion: "", cantidad: 1, precio_unitario: 0, alicuota_iva: 21, cuentaId: "" },
   ]);
+  const [percepcionIva, setPercepcionIva] = useState(0);
+  const [percepcionIibb, setPercepcionIibb] = useState(0);
   const [confirmarYa, setConfirmarYa] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const subtotal = items.reduce((s, i) => s + i.cantidad * i.precio_unitario, 0);
   const iva = items.reduce((s, i) => s + i.cantidad * i.precio_unitario * (i.alicuota_iva / 100), 0);
-  const total = subtotal + iva;
+  const total = subtotal + iva + (direccion === "compra" ? percepcionIva + percepcionIibb : 0);
 
   function updateItem(idx: number, patch: Partial<Item>) {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
   }
 
   function addItem() {
-    setItems((prev) => [...prev, { descripcion: "", cantidad: 1, precio_unitario: 0, alicuota_iva: 21 }]);
+    const cuentaPorDefecto = terceros.find((t) => t.id === terceroId)?.cuenta_gasto_id ?? "";
+    setItems((prev) => [
+      ...prev,
+      { descripcion: "", cantidad: 1, precio_unitario: 0, alicuota_iva: 21, cuentaId: cuentaPorDefecto },
+    ]);
   }
 
   function removeItem(idx: number) {
     setItems((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  function cambiarTercero(id: string) {
+    setTerceroId(id);
+    const cuentaPorDefecto = terceros.find((t) => t.id === id)?.cuenta_gasto_id ?? "";
+    if (cuentaPorDefecto) {
+      setItems((prev) => prev.map((it) => (it.cuentaId ? it : { ...it, cuentaId: cuentaPorDefecto })));
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -93,6 +123,8 @@ export default function ComprobanteForm({
         fecha,
         tercero_id: terceroId,
         condicion_venta: condicionVenta,
+        percepcion_iva: direccion === "compra" ? percepcionIva : 0,
+        percepcion_iibb: direccion === "compra" ? percepcionIibb : 0,
         creado_por: user?.id,
       })
       .select()
@@ -112,6 +144,7 @@ export default function ComprobanteForm({
         precio_unitario: i.precio_unitario,
         alicuota_iva: i.alicuota_iva,
         subtotal: i.cantidad * i.precio_unitario,
+        cuenta_id: i.cuentaId || null,
       }))
     );
 
@@ -188,7 +221,7 @@ export default function ComprobanteForm({
           <label className="block text-xs font-medium text-ink-soft">Cliente / Proveedor</label>
           <select
             value={terceroId}
-            onChange={(e) => setTerceroId(e.target.value)}
+            onChange={(e) => cambiarTercero(e.target.value)}
             className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
           >
             <option value="">Seleccionar...</option>
@@ -210,6 +243,30 @@ export default function ComprobanteForm({
             <option value="cuenta_corriente">Cuenta Corriente</option>
           </select>
         </div>
+        {direccion === "compra" && (
+          <>
+            <div>
+              <label className="block text-xs font-medium text-ink-soft">Percepción IVA</label>
+              <input
+                type="number"
+                step="0.01"
+                value={percepcionIva}
+                onChange={(e) => setPercepcionIva(Number(e.target.value))}
+                className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-ink-soft">Percepción IIBB</label>
+              <input
+                type="number"
+                step="0.01"
+                value={percepcionIibb}
+                onChange={(e) => setPercepcionIibb(Number(e.target.value))}
+                className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="rounded-lg border bg-surface p-4 shadow-sm">
@@ -230,8 +287,20 @@ export default function ComprobanteForm({
                 placeholder="Descripción"
                 value={item.descripcion}
                 onChange={(e) => updateItem(idx, { descripcion: e.target.value })}
-                className="col-span-5 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="col-span-4 rounded-md border border-line px-2 py-1.5 text-sm"
               />
+              <select
+                value={item.cuentaId}
+                onChange={(e) => updateItem(idx, { cuentaId: e.target.value })}
+                className="col-span-3 rounded-md border border-line px-2 py-1.5 text-xs"
+              >
+                <option value="">Cuenta (opcional)...</option>
+                {cuentas.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.codigo} — {c.nombre}
+                  </option>
+                ))}
+              </select>
               <input
                 type="number"
                 min={0}
@@ -239,7 +308,7 @@ export default function ComprobanteForm({
                 placeholder="Cant."
                 value={item.cantidad}
                 onChange={(e) => updateItem(idx, { cantidad: Number(e.target.value) })}
-                className="col-span-2 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="col-span-1 rounded-md border border-line px-2 py-1.5 text-sm"
               />
               <input
                 type="number"
@@ -253,7 +322,7 @@ export default function ComprobanteForm({
               <select
                 value={item.alicuota_iva}
                 onChange={(e) => updateItem(idx, { alicuota_iva: Number(e.target.value) })}
-                className="col-span-2 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="col-span-1 rounded-md border border-line px-2 py-1.5 text-sm"
               >
                 <option value={0}>0%</option>
                 <option value={10.5}>10.5%</option>
@@ -270,13 +339,23 @@ export default function ComprobanteForm({
             </div>
           ))}
         </div>
-        <div className="mt-4 flex justify-end gap-6 border-t pt-3 text-sm">
+        <p className="mt-2 text-xs text-ink-soft">
+          Si no elegís cuenta, se usa la cuenta de gasto/activo del proveedor (o Costo de Mercadería
+          Vendida si tampoco tiene una configurada).
+        </p>
+        <div className="mt-4 flex flex-wrap justify-end gap-6 border-t pt-3 text-sm">
           <p>
             Subtotal: <span className="font-medium">{subtotal.toFixed(2)}</span>
           </p>
           <p>
             IVA: <span className="font-medium">{iva.toFixed(2)}</span>
           </p>
+          {direccion === "compra" && (percepcionIva > 0 || percepcionIibb > 0) && (
+            <p>
+              Percepciones:{" "}
+              <span className="font-medium">{(percepcionIva + percepcionIibb).toFixed(2)}</span>
+            </p>
+          )}
           <p>
             Total: <span className="font-semibold">{total.toFixed(2)}</span>
           </p>
