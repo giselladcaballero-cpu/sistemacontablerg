@@ -2,6 +2,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  color-scheme: light;
   --color-bg: #fbfbfa;
   --color-surface: #ffffff;
   --color-surface-muted: #f0f5f2;
@@ -17,6 +18,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --color-bg: #0e1a16;
   --color-surface: #16261f;
   --color-surface-muted: #1c2f27;
@@ -50,6 +52,12 @@
 
 body {
   background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+select,
+option {
+  background-color: var(--color-surface);
   color: var(--color-ink);
 }
 
