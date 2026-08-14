@@ -14,6 +14,7 @@ const NAV = [
   { href: "/contabilidad", label: "Contabilidad" },
   { href: "/iva", label: "Libro IVA" },
   { href: "/retenciones", label: "Retenciones" },
+  { href: "/vencimientos", label: "Vencimientos Impositivos" },
   { href: "/plan-cuentas", label: "Plan de Cuentas" },
   { href: "/perfil", label: "Perfil del Cliente" },
 ];

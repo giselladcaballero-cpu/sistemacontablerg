@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PageTitle from "@/components/page-title";
 
@@ -8,7 +9,10 @@ function fmt(n: number) {
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const [{ data: saldosBancarios }, { data: ventas }, { data: compras }, { data: mayor }] =
+  const hoy = new Date().toISOString().slice(0, 10);
+  const en14dias = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+
+  const [{ data: saldosBancarios }, { data: ventas }, { data: compras }, { data: mayor }, { data: vencimientos }] =
     await Promise.all([
       supabase.from("v_saldos_bancarios").select("*"),
       supabase
@@ -26,6 +30,12 @@ export default async function DashboardPage() {
         .neq("estado", "borrador")
         .gte("fecha", new Date(new Date().setDate(1)).toISOString().slice(0, 10)),
       supabase.from("v_libro_mayor").select("*").in("tipo", ["ingreso", "egreso"]),
+      supabase
+        .from("vencimientos_impositivos")
+        .select("id, concepto, periodo, fecha_vencimiento")
+        .eq("estado", "pendiente")
+        .lte("fecha_vencimiento", en14dias)
+        .order("fecha_vencimiento", { ascending: true }),
     ]);
 
   const totalBancos = (saldosBancarios ?? []).reduce((s, c) => s + Number(c.saldo_actual), 0);
@@ -63,6 +73,29 @@ export default async function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {(vencimientos ?? []).length > 0 && (
+        <div className="mt-6 rounded-lg border bg-surface p-4 shadow-sm">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="text-sm font-medium text-ink">Vencimientos próximos</h2>
+            <Link href="/vencimientos" className="text-xs font-medium text-accent hover:opacity-80">
+              Ver todos
+            </Link>
+          </div>
+          <ul className="space-y-1.5 text-sm">
+            {(vencimientos ?? []).map((v) => (
+              <li key={v.id} className="flex items-center justify-between">
+                <span className="text-ink">
+                  {v.concepto} {v.periodo ? `· ${v.periodo}` : ""}
+                </span>
+                <span className={v.fecha_vencimiento < hoy ? "font-medium text-danger" : "text-ink-soft"}>
+                  {v.fecha_vencimiento}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
