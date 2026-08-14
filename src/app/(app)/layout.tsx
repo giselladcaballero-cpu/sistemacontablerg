@@ -8,11 +8,13 @@ import ThemeToggle from "@/components/theme-toggle";
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/comprobantes", label: "Comprobantes" },
+  { href: "/ordenes-pago", label: "Órdenes de Pago" },
   { href: "/terceros", label: "Clientes / Proveedores" },
   { href: "/bancos", label: "Bancos" },
   { href: "/libro-diario", label: "Libro Diario" },
   { href: "/libro-mayor", label: "Libro Mayor" },
   { href: "/iva", label: "Libro IVA" },
+  { href: "/retenciones", label: "Retenciones" },
   { href: "/plan-cuentas", label: "Plan de Cuentas" },
 ];
 
