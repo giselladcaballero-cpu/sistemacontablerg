@@ -9,6 +9,7 @@ const NOMBRES: Record<string, string> = {
   iva: "IVA",
   ganancias: "Ganancias",
   iibb: "Ingresos Brutos",
+  suss: "SUSS",
 };
 
 export default async function RetencionesPage() {
@@ -18,7 +19,7 @@ export default async function RetencionesPage() {
     .select("*")
     .order("fecha", { ascending: false });
 
-  const totalesPorTipo = ["iva", "ganancias", "iibb"].map((tipo) => ({
+  const totalesPorTipo = ["iva", "ganancias", "iibb", "suss"].map((tipo) => ({
     tipo,
     total: (retenciones ?? [])
       .filter((r) => r.tipo === tipo)

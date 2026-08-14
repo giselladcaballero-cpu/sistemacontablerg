@@ -31,7 +31,7 @@ export default function OrdenPagoForm({
   facturas: Factura[];
   cuentas: { id: string; nombre: string }[];
   userId: string | null;
-  agente: { iva: boolean; ganancias: boolean; iibb: boolean };
+  agente: { iva: boolean; ganancias: boolean; iibb: boolean; suss: boolean };
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -49,6 +49,7 @@ export default function OrdenPagoForm({
   const [retencionIva, setRetencionIva] = useState(0);
   const [retencionGanancias, setRetencionGanancias] = useState(0);
   const [retencionIibb, setRetencionIibb] = useState(0);
+  const [retencionSuss, setRetencionSuss] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +57,7 @@ export default function OrdenPagoForm({
   const total = facturasDelProveedor
     .filter((f) => seleccionadas.has(f.comprobante_id))
     .reduce((s, f) => s + Number(f.total), 0);
-  const neto = total - retencionIva - retencionGanancias - retencionIibb;
+  const neto = total - retencionIva - retencionGanancias - retencionIibb - retencionSuss;
 
   function toggleFactura(id: string) {
     setSeleccionadas((prev) => {
@@ -73,6 +74,7 @@ export default function OrdenPagoForm({
     setRetencionIva(0);
     setRetencionGanancias(0);
     setRetencionIibb(0);
+    setRetencionSuss(0);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -100,6 +102,7 @@ export default function OrdenPagoForm({
         retencion_iva: retencionIva,
         retencion_ganancias: retencionGanancias,
         retencion_iibb: retencionIibb,
+        retencion_suss: retencionSuss,
         creado_por: userId,
       })
       .select()
@@ -224,7 +227,7 @@ export default function OrdenPagoForm({
         </div>
       )}
 
-      {seleccionadas.size > 0 && !agente.iva && !agente.ganancias && !agente.iibb && (
+      {seleccionadas.size > 0 && !agente.iva && !agente.ganancias && !agente.iibb && !agente.suss && (
         <p className="text-sm text-ink-soft">
           Tu empresa no está marcada como agente de retención en el{" "}
           <a href="/perfil" className="text-accent hover:opacity-80">
@@ -234,7 +237,7 @@ export default function OrdenPagoForm({
         </p>
       )}
 
-      {seleccionadas.size > 0 && (agente.iva || agente.ganancias || agente.iibb) && (
+      {seleccionadas.size > 0 && (agente.iva || agente.ganancias || agente.iibb || agente.suss) && (
         <div className="rounded-lg border bg-surface p-4 shadow-sm">
           <h2 className="mb-1 text-sm font-medium text-ink">Retenciones</h2>
           <p className="mb-3 text-xs text-ink-soft">
@@ -310,6 +313,25 @@ export default function OrdenPagoForm({
                 </button>
               </div>
             )}
+            {agente.suss && (
+              <div>
+                <label className="block text-xs font-medium text-ink-soft">Retención SUSS</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={retencionSuss}
+                  onChange={(e) => setRetencionSuss(Number(e.target.value))}
+                  className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setRetencionSuss(Math.round(total * 0.025 * 100) / 100)}
+                  className="mt-1 text-xs text-accent hover:opacity-80"
+                >
+                  2.5%
+                </button>
+              </div>
+            )}
           </div>
           <div className="mt-4 flex justify-end gap-6 border-t pt-3 text-sm">
             <p>
@@ -318,7 +340,7 @@ export default function OrdenPagoForm({
             <p>
               Retenciones:{" "}
               <span className="font-medium">
-                {fmt(retencionIva + retencionGanancias + retencionIibb)}
+                {fmt(retencionIva + retencionGanancias + retencionIibb + retencionSuss)}
               </span>
             </p>
             <p>

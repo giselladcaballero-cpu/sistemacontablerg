@@ -47,7 +47,7 @@ interface Empresa {
   agente_percepcion_iva: boolean;
   agente_percepcion_iibb: boolean;
   es_empleador: boolean;
-  retenciones_sicoss: boolean;
+  retenciones_suss: boolean;
 }
 
 export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esAdmin: boolean }) {
@@ -67,7 +67,7 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
   const [agentePercIva, setAgentePercIva] = useState(empresa.agente_percepcion_iva);
   const [agentePercIibb, setAgentePercIibb] = useState(empresa.agente_percepcion_iibb);
   const [esEmpleador, setEsEmpleador] = useState(empresa.es_empleador);
-  const [retencionesSicoss, setRetencionesSicoss] = useState(empresa.retenciones_sicoss);
+  const [retencionesSuss, setRetencionesSuss] = useState(empresa.retenciones_suss);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -104,7 +104,7 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
         agente_percepcion_iva: agentePercIva,
         agente_percepcion_iibb: agentePercIibb,
         es_empleador: esEmpleador,
-        retenciones_sicoss: retencionesSicoss,
+        retenciones_suss: retencionesSuss,
       })
       .eq("id", empresa.id);
 
@@ -211,15 +211,6 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
               <input type="checkbox" checked={esEmpleador} onChange={(e) => setEsEmpleador(e.target.checked)} />
               Es empleador (tiene personal en relación de dependencia)
             </label>
-            <label className="flex items-center gap-2 text-sm text-ink-soft">
-              <input
-                type="checkbox"
-                checked={retencionesSicoss}
-                onChange={(e) => setRetencionesSicoss(e.target.checked)}
-              />
-              Retiene aportes de la seguridad social a sus empleados (SICOSS/F.931 — jubilación, obra
-              social, PAMI del sueldo del empleado, distinto de las contribuciones patronales)
-            </label>
           </div>
         </div>
 
@@ -238,6 +229,15 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
                   onChange={(e) => setAgenteRetGanancias(e.target.checked)}
                 />
                 Ganancias
+              </label>
+              <label className="flex items-center gap-2 text-sm text-ink-soft">
+                <input
+                  type="checkbox"
+                  checked={retencionesSuss}
+                  onChange={(e) => setRetencionesSuss(e.target.checked)}
+                />
+                SUSS (a proveedores de servicios con personal: limpieza, seguridad, construcción,
+                cooperativas de trabajo — no es sobre tus propios empleados)
               </label>
               <label className="flex items-center gap-2 text-sm text-ink-soft">
                 <input type="checkbox" checked={agenteRetIibb} onChange={(e) => setAgenteRetIibb(e.target.checked)} />

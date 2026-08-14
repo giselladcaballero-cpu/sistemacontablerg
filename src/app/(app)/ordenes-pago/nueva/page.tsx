@@ -12,7 +12,7 @@ export default async function NuevaOrdenPagoPage() {
     supabase.auth.getUser(),
     supabase
       .from("empresas")
-      .select("agente_retencion_iva, agente_retencion_ganancias, agente_retencion_iibb")
+      .select("agente_retencion_iva, agente_retencion_ganancias, agente_retencion_iibb, retenciones_suss")
       .eq("id", empresa!.id)
       .single(),
   ]);
@@ -29,6 +29,7 @@ export default async function NuevaOrdenPagoPage() {
           iva: empresaData?.agente_retencion_iva ?? false,
           ganancias: empresaData?.agente_retencion_ganancias ?? false,
           iibb: empresaData?.agente_retencion_iibb ?? false,
+          suss: empresaData?.retenciones_suss ?? false,
         }}
       />
     </div>
