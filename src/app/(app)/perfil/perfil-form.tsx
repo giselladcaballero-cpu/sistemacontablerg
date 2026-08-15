@@ -50,7 +50,13 @@ interface Empresa {
   es_empleador: boolean;
   retenciones_suss: boolean;
   periodicidad_sicore: "mensual" | "quincenal";
+  cierre_ejercicio_mes: number;
 }
+
+const MESES_EJERCICIO = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
 
 export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esAdmin: boolean }) {
   const router = useRouter();
@@ -71,6 +77,7 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
   const [esEmpleador, setEsEmpleador] = useState(empresa.es_empleador);
   const [retencionesSuss, setRetencionesSuss] = useState(empresa.retenciones_suss);
   const [periodicidadSicore, setPeriodicidadSicore] = useState<"mensual" | "quincenal">(empresa.periodicidad_sicore);
+  const [cierreEjercicioMes, setCierreEjercicioMes] = useState(empresa.cierre_ejercicio_mes);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,6 +116,7 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
         es_empleador: esEmpleador,
         retenciones_suss: retencionesSuss,
         periodicidad_sicore: periodicidadSicore,
+        cierre_ejercicio_mes: cierreEjercicioMes,
       })
       .eq("id", empresa.id);
 
@@ -155,6 +163,19 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
             </Field>
             <Field label="Domicilio Fiscal">
               <Input value={domicilioFiscal} onChange={(e) => setDomicilioFiscal(e.target.value)} className="w-full normal-case" />
+            </Field>
+            <Field label="Cierre del Ejercicio Comercial">
+              <Select
+                value={cierreEjercicioMes}
+                onChange={(e) => setCierreEjercicioMes(Number(e.target.value))}
+                className="w-full normal-case"
+              >
+                {MESES_EJERCICIO.map((m, i) => (
+                  <option key={m} value={i + 1}>
+                    {m}
+                  </option>
+                ))}
+              </Select>
             </Field>
           </div>
         </Card>

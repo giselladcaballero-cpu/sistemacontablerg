@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { CondicionVenta, DireccionComprobante, TipoComprobante } from "@/lib/types";
 import { Card, Field, Input, Select, Button, money } from "@/components/ui";
+import { mesAFecha, mesImputacionSugerido } from "@/lib/periodos-iva";
 
 interface Item {
   descripcion: string;
@@ -44,18 +45,25 @@ export default function ComprobanteForm({
   terceros,
   cuentas,
   empresaId,
+  periodosCerrados,
 }: {
   terceros: Tercero[];
   cuentas: Cuenta[];
   empresaId: string;
+  periodosCerrados: string[];
 }) {
   const router = useRouter();
   const supabase = createClient();
+  const cerrados = new Set(periodosCerrados);
 
   const [direccion, setDireccion] = useState<DireccionComprobante>("venta");
   const [tipo, setTipo] = useState<TipoComprobante>("factura_b");
   const [puntoVenta, setPuntoVenta] = useState(1);
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
+  const [mesImputacion, setMesImputacion] = useState(() =>
+    mesImputacionSugerido(new Date().toISOString().slice(0, 10), cerrados)
+  );
+  const [mesImputacionTocado, setMesImputacionTocado] = useState(false);
   const [terceroId, setTerceroId] = useState("");
   const [condicionVenta, setCondicionVenta] = useState<CondicionVenta>("contado");
   const [items, setItems] = useState<Item[]>([
@@ -66,6 +74,14 @@ export default function ComprobanteForm({
   const [confirmarYa, setConfirmarYa] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (mesImputacionTocado) return;
+    setMesImputacion(mesImputacionSugerido(fecha, cerrados));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fecha]);
+
+  const mesImputacionCerrado = cerrados.has(mesImputacion);
 
   const subtotal = items.reduce((s, i) => s + i.cantidad * i.precio_unitario, 0);
   const iva = items.reduce((s, i) => s + i.cantidad * i.precio_unitario * (i.alicuota_iva / 100), 0);
@@ -107,6 +123,12 @@ export default function ComprobanteForm({
       setError("Completá la descripción de todos los ítems");
       return;
     }
+    if (mesImputacionCerrado) {
+      setError(
+        `El IVA de ${mesImputacion} ya está presentado. Elegí otro mes de imputación (por ejemplo, el siguiente).`
+      );
+      return;
+    }
 
     setLoading(true);
 
@@ -122,6 +144,7 @@ export default function ComprobanteForm({
         tipo,
         punto_venta: puntoVenta,
         fecha,
+        mes_imputacion: mesAFecha(mesImputacion),
         tercero_id: terceroId,
         condicion_venta: condicionVenta,
         percepcion_iva: direccion === "compra" ? percepcionIva : 0,
@@ -195,6 +218,22 @@ export default function ComprobanteForm({
           </Field>
           <Field label="Fecha">
             <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full normal-case" />
+          </Field>
+          <Field label="Mes de Imputación">
+            <Input
+              type="month"
+              value={mesImputacion}
+              onChange={(e) => {
+                setMesImputacion(e.target.value);
+                setMesImputacionTocado(true);
+              }}
+              className={`w-full normal-case ${mesImputacionCerrado ? "border-bad text-bad" : ""}`}
+            />
+            {mesImputacionCerrado && (
+              <span className="mt-1 block text-[10px] normal-case text-bad">
+                El IVA de este mes ya está presentado
+              </span>
+            )}
           </Field>
           <Field label="Cliente / Proveedor">
             <Select value={terceroId} onChange={(e) => cambiarTercero(e.target.value)} className="w-full normal-case">
@@ -326,7 +365,7 @@ export default function ComprobanteForm({
         </label>
         <div className="flex items-center gap-3">
           {error && <p className="text-[12px] text-bad">{error}</p>}
-          <Button type="submit" variant="primary" disabled={loading}>
+          <Button type="submit" variant="primary" disabled={loading || mesImputacionCerrado}>
             {loading ? "Guardando..." : "Guardar Comprobante"}
           </Button>
         </div>

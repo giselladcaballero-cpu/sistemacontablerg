@@ -76,6 +76,9 @@ export default function ComprobanteRow({
       <Td mono className="text-ink-2">
         {comprobante.fecha}
       </Td>
+      <Td mono className="text-ink-2">
+        {comprobante.mes_imputacion?.slice(0, 7) ?? "-"}
+      </Td>
       <Td mono className="uppercase text-ink-2">
         {comprobante.tipo.replace("_", " ")}
       </Td>

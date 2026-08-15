@@ -30,6 +30,7 @@ export default async function ComprobantesPage() {
           <thead>
             <tr>
               <Th>Fecha</Th>
+              <Th>Mes Imp.</Th>
               <Th>Tipo</Th>
               <Th>N°</Th>
               <Th>Tercero</Th>
@@ -49,7 +50,7 @@ export default async function ComprobantesPage() {
             ))}
             {(comprobantes ?? []).length === 0 && (
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
+                <td colSpan={9} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
                   Sin comprobantes todavía
                 </td>
               </tr>

@@ -54,6 +54,7 @@ export interface Comprobante {
   punto_venta: number;
   numero: number | null;
   fecha: string;
+  mes_imputacion: string;
   tercero_id: string;
   condicion_venta: CondicionVenta;
   subtotal: number;

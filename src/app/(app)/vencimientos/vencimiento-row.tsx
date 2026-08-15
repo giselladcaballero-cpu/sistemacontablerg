@@ -4,15 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Row, Td, Badge, type Tone } from "@/components/ui";
+import { fechaAMes } from "@/lib/periodos-iva";
 
 interface Vencimiento {
   id: string;
   concepto: string;
   periodo: string | null;
   fecha_vencimiento: string;
-  estado: "pendiente" | "pagado";
+  estado: "pendiente" | "pagado" | "presentado";
   notas: string | null;
 }
+
+const esIva = (concepto: string) => /^iva\b/i.test(concepto.trim());
 
 export default function VencimientoRow({ vencimiento, hoy }: { vencimiento: Vencimiento; hoy: string }) {
   const router = useRouter();
@@ -26,7 +29,10 @@ export default function VencimientoRow({ vencimiento, hoy }: { vencimiento: Venc
 
   let estadoLabel = "OK";
   let estadoTone: Tone = "accent";
-  if (vencimiento.estado === "pagado") {
+  if (vencimiento.estado === "presentado") {
+    estadoLabel = "Presentado";
+    estadoTone = "muted";
+  } else if (vencimiento.estado === "pagado") {
     estadoLabel = "Pagado";
     estadoTone = "muted";
   } else if (dias < 0) {
@@ -43,6 +49,34 @@ export default function VencimientoRow({ vencimiento, hoy }: { vencimiento: Venc
     const { error } = await supabase
       .from("vencimientos_impositivos")
       .update({ estado: "pagado" })
+      .eq("id", vencimiento.id);
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    router.refresh();
+  }
+
+  async function marcarPresentado() {
+    // El IVA que vence este mes corresponde, por convención, al período del mes anterior.
+    const mesVencimiento = fechaAMes(vencimiento.fecha_vencimiento);
+    const [anio, mes] = mesVencimiento.split("-").map(Number);
+    const d = new Date(anio, mes - 2, 1);
+    const mesAnterior = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+    if (
+      !confirm(
+        `¿Marcar como presentado el IVA de ${mesAnterior}? A partir de ahora no se van a poder imputar comprobantes nuevos a ese mes.`
+      )
+    )
+      return;
+
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase
+      .from("vencimientos_impositivos")
+      .update({ estado: "presentado", periodo_fiscal: `${mesAnterior}-01` })
       .eq("id", vencimiento.id);
     setLoading(false);
     if (error) {
@@ -77,7 +111,12 @@ export default function VencimientoRow({ vencimiento, hoy }: { vencimiento: Venc
       </Td>
       <Td right>
         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100">
-          {vencimiento.estado === "pendiente" && (
+          {vencimiento.estado === "pendiente" && esIva(vencimiento.concepto) && (
+            <button onClick={marcarPresentado} disabled={loading} className="text-[11px] font-medium text-accent hover:opacity-80">
+              Marcar presentado
+            </button>
+          )}
+          {vencimiento.estado === "pendiente" && !esIva(vencimiento.concepto) && (
             <button onClick={marcarPagado} disabled={loading} className="text-[11px] font-medium text-accent hover:opacity-80">
               Marcar pagado
             </button>
