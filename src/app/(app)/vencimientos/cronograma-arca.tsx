@@ -9,7 +9,6 @@ interface CronogramaItem {
   id: string;
   concepto: string;
   fecha: string;
-  cuit_terminaciones: number[];
 }
 
 export default function CronogramaArca({

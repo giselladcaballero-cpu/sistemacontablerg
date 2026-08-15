@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getEmpresaActual } from "@/lib/empresa";
 import PageTitle from "@/components/page-title";
 import { Card, KpiCard, Table, Th } from "@/components/ui";
+import { generarVencimientosRecurrentes } from "@/lib/vencimientos-recurrentes";
 import VencimientoForm from "./vencimiento-form";
 import VencimientoRow from "./vencimiento-row";
 import CronogramaArca from "./cronograma-arca";
@@ -40,13 +41,7 @@ export default async function VencimientosPage() {
 
   const jurisdicciones = empresa?.jurisdicciones_iibb ?? [];
 
-  let cronograma: {
-    id: string;
-    concepto: string;
-    fecha: string;
-    cuit_terminaciones: number[];
-    requiere_agente: boolean;
-  }[] = [];
+  let cronograma: { id: string; concepto: string; fecha: string }[] = [];
   if (terminacion !== null) {
     const { data } = await supabase
       .from("cronograma_vencimientos_arca")
@@ -54,13 +49,26 @@ export default async function VencimientosPage() {
       .or(`cuit_terminaciones.eq.{},cuit_terminaciones.cs.{${terminacion}}`)
       .gte("fecha", hoy)
       .order("fecha", { ascending: true });
-    cronograma = (data ?? []).filter(
+
+    const fijos = (data ?? []).filter(
       (item) =>
         (empresa?.es_empleador || !item.requiere_empleador) &&
         (!item.requiere_agente || esAgente) &&
         (!item.periodicidad || item.periodicidad === empresa?.periodicidad_sicore) &&
         (!item.jurisdiccion || jurisdicciones.includes(item.jurisdiccion))
     );
+
+    // Recurrentes (SUSS, SICORE, ATM, SIRCAR): se calculan a partir de hoy, no de filas fijas,
+    // así siempre muestran el próximo vencimiento del mes en curso sin necesidad de cargarlos a mano.
+    const recurrentes = generarVencimientosRecurrentes(new Date(), terminacion).filter(
+      (item) =>
+        (empresa?.es_empleador || !item.requiere_empleador) &&
+        (!item.requiere_agente || esAgente) &&
+        (!item.periodicidad || item.periodicidad === empresa?.periodicidad_sicore) &&
+        (!item.jurisdiccion || jurisdicciones.includes(item.jurisdiccion))
+    );
+
+    cronograma = [...fijos, ...recurrentes].sort((a, b) => a.fecha.localeCompare(b.fecha));
   }
 
   const yaAgregados = (vencimientos ?? []).map((v) => `${v.concepto}|${v.fecha_vencimiento}`);
