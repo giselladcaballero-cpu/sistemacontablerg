@@ -71,6 +71,7 @@ export default function ComprobanteForm({
   ]);
   const [percepcionIva, setPercepcionIva] = useState(0);
   const [percepcionIibb, setPercepcionIibb] = useState(0);
+  const [numeroCompra, setNumeroCompra] = useState("");
   const [confirmarYa, setConfirmarYa] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -129,8 +130,34 @@ export default function ComprobanteForm({
       );
       return;
     }
+    if (direccion === "compra" && !numeroCompra.trim()) {
+      setError("Ingresá el número de comprobante del proveedor");
+      return;
+    }
 
     setLoading(true);
+
+    const numero = direccion === "compra" ? Number(numeroCompra) : undefined;
+
+    if (direccion === "compra") {
+      const { data: duplicado } = await supabase
+        .from("comprobantes")
+        .select("id, fecha, total")
+        .eq("empresa_id", empresaId)
+        .eq("tercero_id", terceroId)
+        .eq("tipo", tipo)
+        .eq("punto_venta", puntoVenta)
+        .eq("numero", numero!)
+        .neq("estado", "anulado")
+        .maybeSingle();
+      if (duplicado) {
+        setError(
+          `Este comprobante ya está cargado (fecha ${duplicado.fecha}, total ${money(Number(duplicado.total))}). No se puede duplicar.`
+        );
+        setLoading(false);
+        return;
+      }
+    }
 
     const {
       data: { user },
@@ -143,6 +170,7 @@ export default function ComprobanteForm({
         direccion,
         tipo,
         punto_venta: puntoVenta,
+        ...(numero !== undefined ? { numero } : {}),
         fecha,
         mes_imputacion: mesAFecha(mesImputacion),
         tercero_id: terceroId,
@@ -253,6 +281,17 @@ export default function ComprobanteForm({
           </Field>
           {direccion === "compra" && (
             <>
+              <Field label="N° de Comprobante (del proveedor)">
+                <Input
+                  type="number"
+                  min={1}
+                  required
+                  value={numeroCompra}
+                  onChange={(e) => setNumeroCompra(e.target.value)}
+                  placeholder="Ej: 3456"
+                  className="w-full normal-case"
+                />
+              </Field>
               <Field label="Percepción IVA">
                 <Input type="number" step="0.01" value={percepcionIva} onChange={(e) => setPercepcionIva(Number(e.target.value))} className="w-full normal-case" />
               </Field>
