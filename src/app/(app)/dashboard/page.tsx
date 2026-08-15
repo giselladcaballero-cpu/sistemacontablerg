@@ -105,9 +105,59 @@ export default async function DashboardPage() {
     },
   ];
 
+  const hayVencidos = (vencimientos ?? []).some((v) => v.fecha_vencimiento < hoyIso);
+
   return (
     <div>
       <PageTitle className="mb-6">Resumen</PageTitle>
+
+      <section
+        className={`mb-5 overflow-hidden rounded-[10px] border ${
+          hayVencidos ? "border-bad/30 bg-bad/[.06]" : "border-gold/30 bg-gold/[.06]"
+        }`}
+      >
+        <header className="flex flex-wrap items-center justify-between gap-3 px-[1.15rem] py-3">
+          <h2
+            className={`text-[13px] font-semibold uppercase tracking-[.05em] ${
+              hayVencidos ? "text-bad" : "text-gold"
+            }`}
+          >
+            ⚠ Vencimientos próximos (14 días)
+          </h2>
+          <Link href="/vencimientos">
+            <Button className="!border-0 !bg-transparent !px-0 !text-[11px] !text-accent">Ver todos →</Button>
+          </Link>
+        </header>
+        {(vencimientos ?? []).length === 0 ? (
+          <p className="px-[1.15rem] pb-4 text-[12.5px] text-ink-2">Sin vencimientos en los próximos 14 días</p>
+        ) : (
+          <div className="flex gap-3 overflow-x-auto px-[1.15rem] pb-4">
+            {(vencimientos ?? []).map((v) => {
+              const vencido = v.fecha_vencimiento < hoyIso;
+              const d = new Date(v.fecha_vencimiento + "T00:00:00");
+              return (
+                <div
+                  key={v.id}
+                  className={`flex shrink-0 items-center gap-3 rounded-[8px] border bg-surface px-3.5 py-2.5 ${
+                    vencido ? "border-bad/30" : "border-line-strong"
+                  }`}
+                >
+                  <div className="w-[36px] shrink-0 text-center">
+                    <div className={`font-mono text-[17px] font-bold ${vencido ? "text-bad" : "text-gold"}`}>
+                      {d.getDate().toString().padStart(2, "0")}
+                    </div>
+                    <div className="text-[9px] uppercase text-ink-3">{MESES[d.getMonth()]}</div>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="whitespace-nowrap text-[13px] font-medium text-ink">{v.concepto}</div>
+                    {v.periodo && <div className="text-[11px] text-ink-2">{v.periodo}</div>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       <div className="mb-5 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(215px,1fr))]">
         {kpis.map((k) => (
@@ -178,84 +228,47 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-3.5 xl:[grid-template-columns:1.55fr_1fr]">
-        <Card
-          title="Últimos comprobantes"
-          actions={
-            <Link href="/comprobantes">
-              <Button className="!border-0 !bg-transparent !px-0 !text-[11px] !text-accent">Ver todos →</Button>
-            </Link>
-          }
-        >
-          <Table>
-            <thead>
+      <Card
+        title="Últimos comprobantes"
+        actions={
+          <Link href="/comprobantes">
+            <Button className="!border-0 !bg-transparent !px-0 !text-[11px] !text-accent">Ver todos →</Button>
+          </Link>
+        }
+      >
+        <Table>
+          <thead>
+            <tr>
+              <Th>Comprobante</Th>
+              <Th>Tercero</Th>
+              <Th right>Total</Th>
+              <Th>Estado</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {(ultimos ?? []).map((c) => (
+              <Row key={c.id}>
+                <Td mono>
+                  {c.tipo.replace("_", " ").toUpperCase()} {c.punto_venta.toString().padStart(4, "0")}-
+                  {(c.numero ?? 0).toString().padStart(8, "0")}
+                </Td>
+                <Td>{(c.terceros as unknown as { razon_social: string } | null)?.razon_social ?? "-"}</Td>
+                <Td right mono>
+                  {pesos(Number(c.total))}
+                </Td>
+                <Td>
+                  <Badge tone={ESTADO_TONE[c.estado] ?? "muted"}>{c.estado}</Badge>
+                </Td>
+              </Row>
+            ))}
+            {(ultimos ?? []).length === 0 && (
               <tr>
-                <Th>Comprobante</Th>
-                <Th>Tercero</Th>
-                <Th right>Total</Th>
-                <Th>Estado</Th>
+                <Td className="py-6 text-center text-ink-2">Sin comprobantes todavía</Td>
               </tr>
-            </thead>
-            <tbody>
-              {(ultimos ?? []).map((c) => (
-                <Row key={c.id}>
-                  <Td mono>
-                    {c.tipo.replace("_", " ").toUpperCase()} {c.punto_venta.toString().padStart(4, "0")}-
-                    {(c.numero ?? 0).toString().padStart(8, "0")}
-                  </Td>
-                  <Td>{(c.terceros as unknown as { razon_social: string } | null)?.razon_social ?? "-"}</Td>
-                  <Td right mono>
-                    {pesos(Number(c.total))}
-                  </Td>
-                  <Td>
-                    <Badge tone={ESTADO_TONE[c.estado] ?? "muted"}>{c.estado}</Badge>
-                  </Td>
-                </Row>
-              ))}
-              {(ultimos ?? []).length === 0 && (
-                <tr>
-                  <Td className="py-6 text-center text-ink-2">Sin comprobantes todavía</Td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-        </Card>
-
-        <Card
-          title="Vencimientos próximos"
-          actions={
-            <Link href="/vencimientos">
-              <Button className="!border-0 !bg-transparent !px-0 !text-[11px] !text-accent">Ver todos →</Button>
-            </Link>
-          }
-        >
-          <div className="py-2.5">
-            {(vencimientos ?? []).map((v) => {
-              const vencido = v.fecha_vencimiento < hoyIso;
-              const d = new Date(v.fecha_vencimiento + "T00:00:00");
-              return (
-                <div key={v.id} className="flex items-center gap-3 px-[1.15rem] py-[9px]">
-                  <div className="w-[38px] shrink-0 text-center">
-                    <div className={`font-mono text-[15px] font-semibold ${vencido ? "text-bad" : "text-gold"}`}>
-                      {d.getDate().toString().padStart(2, "0")}
-                    </div>
-                    <div className="text-[9px] uppercase text-ink-3">{MESES[d.getMonth()]}</div>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[12.5px] text-ink">
-                      {v.concepto}
-                      {v.periodo ? ` · ${v.periodo}` : ""}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {(vencimientos ?? []).length === 0 && (
-              <div className="px-[1.15rem] py-4 text-[12px] text-ink-2">Sin vencimientos en los próximos 14 días</div>
             )}
-          </div>
-        </Card>
-      </div>
+          </tbody>
+        </Table>
+      </Card>
     </div>
   );
 }
