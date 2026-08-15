@@ -1,9 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import PageTitle from "@/components/page-title";
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n);
-}
+import { Card, Table, Th, pesos } from "@/components/ui";
 
 function Tabla({
   titulo,
@@ -14,59 +11,56 @@ function Tabla({
 }) {
   const totalIva = filas.reduce((s, f) => s + Number(f.iva), 0);
   return (
-    <div>
-      <h2 className="mb-2 text-sm font-medium text-ink">{titulo}</h2>
-      <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
-        <table className="min-w-full divide-y divide-line text-sm">
-          <thead className="bg-bg">
-            <tr>
-              <th className="px-3 py-2 text-left font-medium text-ink-soft">Fecha</th>
-              <th className="px-3 py-2 text-left font-medium text-ink-soft">Tipo</th>
-              <th className="px-3 py-2 text-left font-medium text-ink-soft">N°</th>
-              <th className="px-3 py-2 text-left font-medium text-ink-soft">Razón Social</th>
-              <th className="px-3 py-2 text-left font-medium text-ink-soft">CUIT</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">Neto</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">IVA</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">Total</th>
+    <Card title={titulo}>
+      <Table>
+        <thead>
+          <tr>
+            <Th>Fecha</Th>
+            <Th>Tipo</Th>
+            <Th>N°</Th>
+            <Th>Razón Social</Th>
+            <Th>CUIT</Th>
+            <Th right>Neto</Th>
+            <Th right>IVA</Th>
+            <Th right>Total</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {filas.map((f, idx) => (
+            <tr key={idx} className="border-b border-line hover:bg-accent/5">
+              <td className="px-3 py-2 font-mono text-[11px] text-ink-2">{f.fecha}</td>
+              <td className="px-3 py-2 font-mono text-[11px] uppercase text-ink-2">{f.tipo.replace("_", " ")}</td>
+              <td className="px-3 py-2 font-mono text-[11px] text-ink-2">
+                {f.punto_venta.toString().padStart(4, "0")}-{(f.numero ?? 0).toString().padStart(8, "0")}
+              </td>
+              <td className="px-3 py-2 text-[12.5px] text-ink">{f.razon_social}</td>
+              <td className="px-3 py-2 text-[12.5px] text-ink-2">{f.cuit ?? "-"}</td>
+              <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink-2">{pesos(Number(f.subtotal))}</td>
+              <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink-2">{pesos(Number(f.iva))}</td>
+              <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{pesos(Number(f.total))}</td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {filas.map((f, idx) => (
-              <tr key={idx}>
-                <td className="px-3 py-2 text-ink-soft">{f.fecha}</td>
-                <td className="px-3 py-2 uppercase text-ink-soft">{f.tipo.replace("_", " ")}</td>
-                <td className="px-3 py-2 text-ink-soft">
-                  {f.punto_venta.toString().padStart(4, "0")}-{(f.numero ?? 0).toString().padStart(8, "0")}
-                </td>
-                <td className="px-3 py-2 text-ink">{f.razon_social}</td>
-                <td className="px-3 py-2 text-ink-soft">{f.cuit ?? "-"}</td>
-                <td className="px-3 py-2 text-right text-ink-soft">{fmt(Number(f.subtotal))}</td>
-                <td className="px-3 py-2 text-right text-ink-soft">{fmt(Number(f.iva))}</td>
-                <td className="px-3 py-2 text-right text-ink">{fmt(Number(f.total))}</td>
-              </tr>
-            ))}
-            {filas.length === 0 && (
-              <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-ink-soft">
-                  Sin comprobantes
-                </td>
-              </tr>
-            )}
-          </tbody>
-          {filas.length > 0 && (
-            <tfoot className="bg-bg font-medium">
-              <tr>
-                <td colSpan={6} className="px-3 py-2 text-right text-ink-soft">
-                  Total IVA
-                </td>
-                <td className="px-3 py-2 text-right text-ink">{fmt(totalIva)}</td>
-                <td></td>
-              </tr>
-            </tfoot>
+          ))}
+          {filas.length === 0 && (
+            <tr>
+              <td colSpan={8} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
+                Sin comprobantes
+              </td>
+            </tr>
           )}
-        </table>
-      </div>
-    </div>
+        </tbody>
+        {filas.length > 0 && (
+          <tfoot className="bg-surface-2 font-medium">
+            <tr>
+              <td colSpan={6} className="px-3 py-2 text-right text-[12.5px] text-ink-2">
+                Total IVA
+              </td>
+              <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{pesos(totalIva)}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        )}
+      </Table>
+    </Card>
   );
 }
 
@@ -78,7 +72,7 @@ export default async function LibroIvaPage() {
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageTitle>Libro IVA</PageTitle>
       <Tabla titulo="IVA Ventas" filas={ventas ?? []} />
       <Tabla titulo="IVA Compras" filas={compras ?? []} />

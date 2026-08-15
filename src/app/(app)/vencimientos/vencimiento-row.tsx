@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Row, Td, Badge, type Tone } from "@/components/ui";
 
 interface Vencimiento {
   id: string;
@@ -24,16 +25,16 @@ export default function VencimientoRow({ vencimiento, hoy }: { vencimiento: Venc
   );
 
   let estadoLabel = "OK";
-  let estadoClase = "bg-accent-soft text-accent-soft-ink";
+  let estadoTone: Tone = "accent";
   if (vencimiento.estado === "pagado") {
     estadoLabel = "Pagado";
-    estadoClase = "bg-surface-muted text-ink-soft";
+    estadoTone = "muted";
   } else if (dias < 0) {
     estadoLabel = "Vencido";
-    estadoClase = "bg-danger-soft text-danger";
+    estadoTone = "bad";
   } else if (dias <= 7) {
     estadoLabel = `En ${dias} día${dias === 1 ? "" : "s"}`;
-    estadoClase = "bg-danger-soft text-danger";
+    estadoTone = "gold";
   }
 
   async function marcarPagado() {
@@ -64,27 +65,29 @@ export default function VencimientoRow({ vencimiento, hoy }: { vencimiento: Venc
   }
 
   return (
-    <tr className="group">
-      <td className="px-3 py-2 text-ink-soft">{vencimiento.fecha_vencimiento}</td>
-      <td className="px-3 py-2 text-ink">{vencimiento.concepto}</td>
-      <td className="px-3 py-2 text-ink-soft">{vencimiento.periodo ?? "-"}</td>
-      <td className="px-3 py-2 text-ink-soft">{vencimiento.notas ?? "-"}</td>
-      <td className="px-3 py-2">
-        <span className={`rounded-full px-2 py-0.5 text-xs ${estadoClase}`}>{estadoLabel}</span>
-      </td>
-      <td className="px-3 py-2 text-right">
+    <Row>
+      <Td mono className="text-ink-2">
+        {vencimiento.fecha_vencimiento}
+      </Td>
+      <Td>{vencimiento.concepto}</Td>
+      <Td className="text-ink-2">{vencimiento.periodo ?? "-"}</Td>
+      <Td className="text-ink-2">{vencimiento.notas ?? "-"}</Td>
+      <Td>
+        <Badge tone={estadoTone}>{estadoLabel}</Badge>
+      </Td>
+      <Td right>
         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100">
           {vencimiento.estado === "pendiente" && (
-            <button onClick={marcarPagado} disabled={loading} className="text-xs font-medium text-accent hover:opacity-80">
+            <button onClick={marcarPagado} disabled={loading} className="text-[11px] font-medium text-accent hover:opacity-80">
               Marcar pagado
             </button>
           )}
-          <button onClick={eliminar} disabled={loading} className="text-xs text-danger hover:opacity-80">
+          <button onClick={eliminar} disabled={loading} className="text-[11px] text-bad hover:opacity-80">
             Eliminar
           </button>
         </div>
-        {error && <p className="text-xs text-danger">{error}</p>}
-      </td>
-    </tr>
+        {error && <p className="text-[11px] text-bad">{error}</p>}
+      </Td>
+    </Row>
   );
 }

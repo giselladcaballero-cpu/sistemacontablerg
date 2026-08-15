@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { CondicionIva, TipoTercero } from "@/lib/types";
 import { TASAS_IIBB } from "@/lib/iibb";
+import { Row, Td } from "@/components/ui";
 
 interface Cuenta {
   id: string;
@@ -219,30 +220,32 @@ export default function TerceroRow({ tercero, cuentas }: { tercero: Tercero; cue
 
   return (
     <>
-      <tr className="group">
-        <td className="px-3 py-2 text-ink-soft">{tercero.numero}</td>
-        <td className="px-3 py-2 text-ink">{tercero.razon_social}</td>
-        <td className="px-3 py-2 capitalize text-ink-soft">{tercero.tipo}</td>
-        <td className="px-3 py-2 text-ink-soft">{tercero.cuit ?? "-"}</td>
-        <td className="px-3 py-2 text-ink-soft">{tercero.condicion_iva}</td>
-        <td className="px-3 py-2 text-ink-soft">{tercero.categoria ?? "-"}</td>
-        <td className="px-3 py-2">
+      <Row>
+        <Td mono className="text-ink-2">
+          {tercero.numero}
+        </Td>
+        <Td>{tercero.razon_social}</Td>
+        <Td className="capitalize text-ink-2">{tercero.tipo}</Td>
+        <Td className="text-ink-2">{tercero.cuit ?? "-"}</Td>
+        <Td className="text-ink-2">{tercero.condicion_iva}</Td>
+        <Td className="text-ink-2">{tercero.categoria ?? "-"}</Td>
+        <Td right>
           <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100">
             <button
               onClick={() => setEditandoRetenciones((v) => !v)}
-              className="text-xs font-medium text-accent hover:opacity-80"
+              className="text-[11px] font-medium text-accent hover:opacity-80"
             >
               Retenciones
             </button>
-            <button onClick={() => setEditing(true)} className="text-xs font-medium text-accent hover:opacity-80">
+            <button onClick={() => setEditing(true)} className="text-[11px] font-medium text-accent hover:opacity-80">
               Editar
             </button>
-            <button onClick={eliminar} disabled={loading} className="text-xs text-danger hover:opacity-80">
+            <button onClick={eliminar} disabled={loading} className="text-[11px] text-bad hover:opacity-80">
               Eliminar
             </button>
           </div>
-        </td>
-      </tr>
+        </Td>
+      </Row>
       {editandoRetenciones && (
         <tr>
           <td colSpan={7} className="bg-bg px-3 py-3">

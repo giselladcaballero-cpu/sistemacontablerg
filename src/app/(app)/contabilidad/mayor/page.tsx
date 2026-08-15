@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import PageTitle from "@/components/page-title";
 import ExportButtons from "@/components/export-buttons";
+import { Card, Table, Th } from "@/components/ui";
 import ContabilidadTabs from "../contabilidad-tabs";
 import MayorFiltros from "./mayor-filtros";
 
@@ -106,49 +107,49 @@ export default async function LibroMayorPage({
           />
         </div>
 
-        <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
-          <table className="min-w-full divide-y divide-line text-sm">
-            <thead className="bg-bg">
+        <Card>
+          <Table>
+            <thead>
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-ink-soft">Fecha</th>
-                <th className="px-3 py-2 text-left font-medium text-ink-soft">N°</th>
-                <th className="px-3 py-2 text-left font-medium text-ink-soft">Descripción</th>
-                <th className="px-3 py-2 text-left font-medium text-ink-soft">Tercero</th>
-                <th className="px-3 py-2 text-right font-medium text-ink-soft">Debe</th>
-                <th className="px-3 py-2 text-right font-medium text-ink-soft">Haber</th>
-                <th className="px-3 py-2 text-right font-medium text-ink-soft">Saldo</th>
+                <Th>Fecha</Th>
+                <Th>N°</Th>
+                <Th>Descripción</Th>
+                <Th>Tercero</Th>
+                <Th right>Debe</Th>
+                <Th right>Haber</Th>
+                <Th right>Saldo</Th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line">
+            <tbody>
               {desde && (
-                <tr className="bg-bg font-medium">
-                  <td colSpan={6} className="px-3 py-2 text-ink-soft">
+                <tr className="border-b border-line bg-surface-2 font-medium">
+                  <td colSpan={6} className="px-3 py-2 text-[12.5px] text-ink-2">
                     Saldo anterior
                   </td>
-                  <td className="px-3 py-2 text-right text-ink">{fmt(sumaAnterior)}</td>
+                  <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{fmt(sumaAnterior)}</td>
                 </tr>
               )}
               {filas.map((f, idx) => (
-                <tr key={idx}>
-                  <td className="px-3 py-2 text-ink-soft">{f.fecha}</td>
-                  <td className="px-3 py-2 text-ink-soft">#{f.numero}</td>
-                  <td className="px-3 py-2 text-ink">{f.descripcion}</td>
-                  <td className="px-3 py-2 text-ink-soft">{f.tercero}</td>
-                  <td className="px-3 py-2 text-right text-ink-soft">{f.debe > 0 ? fmt(f.debe) : ""}</td>
-                  <td className="px-3 py-2 text-right text-ink-soft">{f.haber > 0 ? fmt(f.haber) : ""}</td>
-                  <td className="px-3 py-2 text-right font-medium text-ink">{fmt(f.saldo)}</td>
+                <tr key={idx} className="border-b border-line hover:bg-accent/5">
+                  <td className="px-3 py-2 font-mono text-[11px] text-ink-2">{f.fecha}</td>
+                  <td className="px-3 py-2 font-mono text-[11px] text-ink-2">#{f.numero}</td>
+                  <td className="px-3 py-2 text-[12.5px] text-ink">{f.descripcion}</td>
+                  <td className="px-3 py-2 text-[12.5px] text-ink-2">{f.tercero}</td>
+                  <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink-2">{f.debe > 0 ? fmt(f.debe) : ""}</td>
+                  <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink-2">{f.haber > 0 ? fmt(f.haber) : ""}</td>
+                  <td className="px-3 py-2 text-right font-mono text-[11.5px] font-medium text-ink">{fmt(f.saldo)}</td>
                 </tr>
               ))}
               {filas.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-6 text-center text-ink-soft">
+                  <td colSpan={7} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
                     Sin movimientos en el período
                   </td>
                 </tr>
               )}
             </tbody>
-          </table>
-        </div>
+          </Table>
+        </Card>
       </div>
     );
   }
@@ -203,32 +204,32 @@ export default async function LibroMayorPage({
         />
       </div>
 
-      <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
-        <table className="min-w-full divide-y divide-line text-sm">
-          <thead className="bg-bg">
+      <Card>
+        <Table>
+          <thead>
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-ink-soft">Código</th>
-              <th className="px-3 py-2 text-left font-medium text-ink-soft">Cuenta</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">Debe</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">Haber</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">Saldo</th>
+              <Th>Código</Th>
+              <Th>Cuenta</Th>
+              <Th right>Debe</Th>
+              <Th right>Haber</Th>
+              <Th right>Saldo</Th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody>
             {filasGlobal.map((c) => (
-              <tr key={c.codigo}>
-                <td className="px-3 py-2 text-ink-soft">{c.codigo}</td>
-                <td className="px-3 py-2 text-ink">{c.nombre}</td>
-                <td className="px-3 py-2 text-right text-ink-soft">{fmt(c.debe)}</td>
-                <td className="px-3 py-2 text-right text-ink-soft">{fmt(c.haber)}</td>
-                <td className={`px-3 py-2 text-right font-medium ${c.saldo < 0 ? "text-danger" : "text-ink"}`}>
+              <tr key={c.codigo} className="border-b border-line hover:bg-accent/5">
+                <td className="px-3 py-2 font-mono text-[11px] text-ink-2">{c.codigo}</td>
+                <td className="px-3 py-2 text-[12.5px] text-ink">{c.nombre}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink-2">{fmt(c.debe)}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink-2">{fmt(c.haber)}</td>
+                <td className={`px-3 py-2 text-right font-mono text-[11.5px] font-medium ${c.saldo < 0 ? "text-bad" : "text-ink"}`}>
                   {fmt(c.saldo)}
                 </td>
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
+        </Table>
+      </Card>
     </div>
   );
 }

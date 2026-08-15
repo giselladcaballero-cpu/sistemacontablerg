@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import PageTitle from "@/components/page-title";
 import ExportButtons from "@/components/export-buttons";
+import { Card, Table, Th } from "@/components/ui";
 import ContabilidadTabs from "../contabilidad-tabs";
 import DateRangeFilter from "../date-range-filter";
 
@@ -88,52 +89,52 @@ export default async function BalanceSumasSaldosPage({
         />
       </DateRangeFilter>
 
-      <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
-        <table className="min-w-full divide-y divide-line text-sm">
-          <thead className="bg-bg">
+      <Card>
+        <Table>
+          <thead>
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-ink-soft">Código</th>
-              <th className="px-3 py-2 text-left font-medium text-ink-soft">Cuenta</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">Suma Debe</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">Suma Haber</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">Saldo Deudor</th>
-              <th className="px-3 py-2 text-right font-medium text-ink-soft">Saldo Acreedor</th>
+              <Th>Código</Th>
+              <Th>Cuenta</Th>
+              <Th right>Suma Debe</Th>
+              <Th right>Suma Haber</Th>
+              <Th right>Saldo Deudor</Th>
+              <Th right>Saldo Acreedor</Th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody>
             {filas.map((f) => (
-              <tr key={f.codigo}>
-                <td className="px-3 py-2 text-ink-soft">{f.codigo}</td>
-                <td className="px-3 py-2 text-ink">{f.nombre}</td>
-                <td className="px-3 py-2 text-right text-ink-soft">{fmt(f.debe)}</td>
-                <td className="px-3 py-2 text-right text-ink-soft">{fmt(f.haber)}</td>
-                <td className="px-3 py-2 text-right text-ink">{f.saldoDeudor > 0 ? fmt(f.saldoDeudor) : ""}</td>
-                <td className="px-3 py-2 text-right text-ink">{f.saldoAcreedor > 0 ? fmt(f.saldoAcreedor) : ""}</td>
+              <tr key={f.codigo} className="border-b border-line hover:bg-accent/5">
+                <td className="px-3 py-2 font-mono text-[11px] text-ink-2">{f.codigo}</td>
+                <td className="px-3 py-2 text-[12.5px] text-ink">{f.nombre}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink-2">{fmt(f.debe)}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink-2">{fmt(f.haber)}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{f.saldoDeudor > 0 ? fmt(f.saldoDeudor) : ""}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{f.saldoAcreedor > 0 ? fmt(f.saldoAcreedor) : ""}</td>
               </tr>
             ))}
             {filas.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-ink-soft">
+                <td colSpan={6} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
                   Sin movimientos en el período
                 </td>
               </tr>
             )}
           </tbody>
           {filas.length > 0 && (
-            <tfoot className="bg-bg font-semibold">
+            <tfoot className="bg-surface-2 font-semibold">
               <tr>
-                <td colSpan={2} className="px-3 py-2 text-right text-ink">
+                <td colSpan={2} className="px-3 py-2 text-right text-[12.5px] text-ink">
                   Totales
                 </td>
-                <td className="px-3 py-2 text-right text-ink">{fmt(totales.debe)}</td>
-                <td className="px-3 py-2 text-right text-ink">{fmt(totales.haber)}</td>
-                <td className="px-3 py-2 text-right text-ink">{fmt(totales.saldoDeudor)}</td>
-                <td className="px-3 py-2 text-right text-ink">{fmt(totales.saldoAcreedor)}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{fmt(totales.debe)}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{fmt(totales.haber)}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{fmt(totales.saldoDeudor)}</td>
+                <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{fmt(totales.saldoAcreedor)}</td>
               </tr>
             </tfoot>
           )}
-        </table>
-      </div>
+        </Table>
+      </Card>
     </div>
   );
 }

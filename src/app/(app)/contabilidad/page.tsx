@@ -1,12 +1,18 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PageTitle from "@/components/page-title";
+import { Card, Badge, Button, money, type Tone } from "@/components/ui";
 import ContabilidadTabs from "./contabilidad-tabs";
 import DateRangeFilter from "./date-range-filter";
 
-function fmt(n: number) {
-  return new Intl.NumberFormat("es-AR", { minimumFractionDigits: 2 }).format(n);
-}
+const ORIGEN_LABEL: Record<string, string> = {
+  automatico: "Automático",
+  manual: "Manual",
+};
+const ORIGEN_TONE: Record<string, Tone> = {
+  automatico: "accent",
+  manual: "muted",
+};
 
 export default async function ContabilidadPage({
   searchParams,
@@ -32,60 +38,73 @@ export default async function ContabilidadPage({
     <div>
       <div className="mb-2 flex items-center justify-between">
         <PageTitle>Contabilidad</PageTitle>
-        <Link
-          href="/contabilidad/nuevo"
-          className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90"
-        >
-          + Nuevo Asiento Manual
+        <Link href="/contabilidad/nuevo">
+          <Button variant="primary">+ Nuevo Asiento Manual</Button>
         </Link>
       </div>
       <ContabilidadTabs />
       <DateRangeFilter />
 
-      <div className="space-y-4">
-        {(asientos ?? []).map((a) => (
-          <div key={a.id} className="rounded-lg border bg-surface p-4 shadow-sm">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <p className="font-medium text-ink">
-                #{a.numero} — {a.descripcion}
-              </p>
-              <div className="flex items-center gap-3">
-                <p className="text-ink-soft">
-                  {a.fecha} · {a.origen}
-                  {a.anulado ? " · ANULADO" : ""}
-                </p>
-                {a.origen === "manual" && !a.anulado && (
-                  <Link href={`/contabilidad/${a.id}`} className="text-xs font-medium text-accent hover:opacity-80">
-                    Editar
-                  </Link>
-                )}
-              </div>
-            </div>
-            <table className="min-w-full text-sm">
-              <tbody>
-                {(a.asiento_lineas ?? []).map((l) => {
-                  const cuenta = l.plan_cuentas as unknown as { codigo: string; nombre: string } | null;
-                  const tercero = l.terceros as unknown as { razon_social: string } | null;
-                  return (
-                    <tr key={l.id} className="border-t border-line">
-                      <td className="py-1 pr-4 text-ink-soft">
-                        {cuenta?.codigo} {cuenta?.nombre}
-                      </td>
-                      <td className="py-1 pr-4 text-ink-soft">{tercero?.razon_social ?? ""}</td>
-                      <td className="py-1 pr-4 text-right text-ink">
-                        {Number(l.debe) > 0 ? fmt(Number(l.debe)) : ""}
-                      </td>
-                      <td className="py-1 text-right text-ink">
-                        {Number(l.haber) > 0 ? fmt(Number(l.haber)) : ""}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ))}
-        {(asientos ?? []).length === 0 && <p className="text-center text-ink-soft">Sin asientos todavía</p>}
+      <div className="space-y-3.5">
+        {(asientos ?? []).map((a) => {
+          const totalDebe = (a.asiento_lineas ?? []).reduce((s, l) => s + Number(l.debe), 0);
+          const totalHaber = (a.asiento_lineas ?? []).reduce((s, l) => s + Number(l.haber), 0);
+          return (
+            <Card key={a.id}>
+              <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-[1.15rem] py-3">
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-[13px] text-accent">#{a.numero}</span>
+                  <span className="text-[12.5px] text-ink">{a.descripcion}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-[11px] text-ink-2">{a.fecha}</span>
+                  <Badge tone={ORIGEN_TONE[a.origen] ?? "muted"}>{ORIGEN_LABEL[a.origen] ?? a.origen}</Badge>
+                  {a.anulado && <Badge tone="bad">Anulado</Badge>}
+                  {a.origen === "manual" && !a.anulado && (
+                    <Link href={`/contabilidad/${a.id}`} className="text-[11px] font-medium text-accent hover:opacity-80">
+                      Editar
+                    </Link>
+                  )}
+                </div>
+              </header>
+              <table className="w-full border-collapse text-[12.5px]">
+                <tbody>
+                  {(a.asiento_lineas ?? []).map((l) => {
+                    const cuenta = l.plan_cuentas as unknown as { codigo: string; nombre: string } | null;
+                    const tercero = l.terceros as unknown as { razon_social: string } | null;
+                    const esHaber = Number(l.haber) > 0;
+                    return (
+                      <tr key={l.id} className="border-b border-line last:border-b-0">
+                        <td className={`px-[1.15rem] py-1.5 text-ink-2 ${esHaber ? "pl-8" : ""}`}>
+                          <span className="font-mono text-[11px] text-ink-3">{cuenta?.codigo}</span> {cuenta?.nombre}
+                        </td>
+                        <td className="py-1.5 pr-4 text-ink-2">{tercero?.razon_social ?? ""}</td>
+                        <td className="py-1.5 pr-4 text-right font-mono text-[11.5px] text-ink">
+                          {Number(l.debe) > 0 ? money(Number(l.debe)) : ""}
+                        </td>
+                        <td className="py-1.5 pr-[1.15rem] text-right font-mono text-[11.5px] text-ink">
+                          {esHaber ? money(Number(l.haber)) : ""}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  <tr>
+                    <td colSpan={2} className="px-[1.15rem] py-1.5 text-right text-[11px] uppercase tracking-[.05em] text-ink-3">
+                      Totales
+                    </td>
+                    <td className="py-1.5 pr-4 text-right font-mono text-[11.5px] font-semibold text-ink">
+                      {money(totalDebe)}
+                    </td>
+                    <td className="py-1.5 pr-[1.15rem] text-right font-mono text-[11.5px] font-semibold text-ink">
+                      {money(totalHaber)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </Card>
+          );
+        })}
+        {(asientos ?? []).length === 0 && <p className="text-center text-[12.5px] text-ink-2">Sin asientos todavía</p>}
       </div>
     </div>
   );

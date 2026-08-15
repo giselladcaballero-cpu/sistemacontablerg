@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getEmpresaActual } from "@/lib/empresa";
 import PageTitle from "@/components/page-title";
+import { Card, KpiCard, Table, Th } from "@/components/ui";
 import VencimientoForm from "./vencimiento-form";
 import VencimientoRow from "./vencimiento-row";
 import CronogramaArca from "./cronograma-arca";
@@ -58,25 +59,14 @@ export default async function VencimientosPage() {
     <div>
       <PageTitle className="mb-6">Vencimientos Impositivos</PageTitle>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border bg-surface p-4 shadow-sm">
-          <p className="text-xs text-ink-soft">Vencidos</p>
-          <p className={`mt-1 text-xl font-semibold ${vencidos.length > 0 ? "text-danger" : "text-ink"}`}>
-            {vencidos.length}
-          </p>
-        </div>
-        <div className="rounded-lg border bg-surface p-4 shadow-sm">
-          <p className="text-xs text-ink-soft">Próximos 7 días</p>
-          <p className="mt-1 text-xl font-semibold text-ink">{proximos.length}</p>
-        </div>
-        <div className="rounded-lg border bg-surface p-4 shadow-sm">
-          <p className="text-xs text-ink-soft">Pendientes totales</p>
-          <p className="mt-1 text-xl font-semibold text-ink">{pendientes.length}</p>
-        </div>
+      <div className="mb-6 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(215px,1fr))]">
+        <KpiCard label="Vencidos" value={String(vencidos.length)} tone={vencidos.length > 0 ? "bad" : "accent"} />
+        <KpiCard label="Próximos 7 días" value={String(proximos.length)} tone="gold" />
+        <KpiCard label="Pendientes totales" value={String(pendientes.length)} tone="accent" />
       </div>
 
       {terminacion === null ? (
-        <p className="mb-6 rounded-md bg-surface-muted px-3 py-2 text-sm text-ink-soft">
+        <p className="mb-6 rounded-[6px] bg-surface-2 px-3 py-2 text-[12.5px] text-ink-2">
           Completá el CUIT en{" "}
           <a href="/perfil" className="text-accent hover:opacity-80">
             Perfil del Cliente
@@ -95,32 +85,32 @@ export default async function VencimientosPage() {
           <VencimientoForm empresaId={empresaActual!.id} />
         </div>
         <div className="lg:col-span-2">
-          <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
-            <table className="min-w-full divide-y divide-line text-sm">
-              <thead className="bg-bg">
+          <Card>
+            <Table>
+              <thead>
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Vencimiento</th>
-                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Concepto</th>
-                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Período</th>
-                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Notas</th>
-                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Estado</th>
-                  <th className="px-3 py-2"></th>
+                  <Th>Vencimiento</Th>
+                  <Th>Concepto</Th>
+                  <Th>Período</Th>
+                  <Th>Notas</Th>
+                  <Th>Estado</Th>
+                  <Th right>{""}</Th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody>
                 {(vencimientos ?? []).map((v) => (
                   <VencimientoRow key={v.id} vencimiento={v} hoy={hoy} />
                 ))}
                 {(vencimientos ?? []).length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-3 py-6 text-center text-ink-soft">
+                    <td colSpan={6} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
                       Sin vencimientos cargados todavía
                     </td>
                   </tr>
                 )}
               </tbody>
-            </table>
-          </div>
+            </Table>
+          </Card>
         </div>
       </div>
     </div>

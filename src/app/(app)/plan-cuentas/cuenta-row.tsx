@@ -4,6 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { NaturalezaCuenta, PlanCuenta, TipoCuenta } from "@/lib/types";
+import { Row, Td, Badge, type Tone } from "@/components/ui";
+
+const TIPO_TONE: Record<string, Tone> = {
+  activo: "accent",
+  pasivo: "bad",
+  patrimonio_neto: "plum",
+  ingreso: "good",
+  egreso: "good",
+};
 
 export default function PlanCuentaRow({ cuenta }: { cuenta: PlanCuenta }) {
   const router = useRouter();
@@ -100,24 +109,28 @@ export default function PlanCuentaRow({ cuenta }: { cuenta: PlanCuenta }) {
   }
 
   return (
-    <tr className={`group ${cuenta.imputable ? "" : "bg-bg font-medium"}`}>
-      <td className="px-3 py-2 text-ink-soft">{cuenta.codigo}</td>
-      <td className="px-3 py-2 text-ink">{cuenta.nombre}</td>
-      <td className="px-3 py-2 capitalize text-ink-soft">{cuenta.tipo.replace("_", " ")}</td>
-      <td className="px-3 py-2 capitalize text-ink-soft">{cuenta.naturaleza}</td>
-      <td className="px-3 py-2 text-ink-soft">
+    <Row>
+      <Td mono className={`text-ink-2 ${cuenta.imputable ? "" : "font-semibold"}`}>
+        {cuenta.codigo}
+      </Td>
+      <Td className={cuenta.imputable ? "" : "font-semibold"}>{cuenta.nombre}</Td>
+      <Td>
+        <Badge tone={TIPO_TONE[cuenta.tipo] ?? "muted"}>{cuenta.tipo.replace("_", " ")}</Badge>
+      </Td>
+      <Td className="capitalize text-ink-2">{cuenta.naturaleza}</Td>
+      <Td>
         <div className="flex items-center justify-between gap-2">
-          <span>{cuenta.imputable ? "Sí" : "No"}</span>
+          <span className="text-ink-2">{cuenta.imputable ? "Sí" : "No"}</span>
           <span className="flex shrink-0 gap-2 opacity-0 group-hover:opacity-100">
-            <button onClick={() => setEditing(true)} className="text-xs font-medium text-accent hover:opacity-80">
+            <button onClick={() => setEditing(true)} className="text-[11px] font-medium text-accent hover:opacity-80">
               Editar
             </button>
-            <button onClick={eliminar} disabled={loading} className="text-xs text-danger hover:opacity-80">
+            <button onClick={eliminar} disabled={loading} className="text-[11px] text-bad hover:opacity-80">
               Eliminar
             </button>
           </span>
         </div>
-      </td>
-    </tr>
+      </Td>
+    </Row>
   );
 }

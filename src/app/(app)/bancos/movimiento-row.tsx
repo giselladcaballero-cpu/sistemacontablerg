@@ -4,10 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { MovimientoBancario } from "@/lib/types";
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n);
-}
+import { Row, Td, pesos } from "@/components/ui";
 
 export default function MovimientoRow({
   movimiento,
@@ -106,26 +103,28 @@ export default function MovimientoRow({
   }
 
   return (
-    <tr className="group">
-      <td className="px-3 py-2 text-ink-soft">{movimiento.fecha}</td>
-      <td className="px-3 py-2 text-ink-soft">{cuentaNombre}</td>
-      <td className="px-3 py-2 text-ink">{movimiento.descripcion}</td>
-      <td className="px-3 py-2 text-right">
+    <Row>
+      <Td mono className="text-ink-2">
+        {movimiento.fecha}
+      </Td>
+      <Td className="text-ink-2">{cuentaNombre}</Td>
+      <Td>{movimiento.descripcion}</Td>
+      <Td right>
         <div className="flex items-center justify-end gap-2">
-          <span className="opacity-0 group-hover:opacity-100 flex gap-2">
-            <button onClick={() => setEditing(true)} className="text-xs font-medium text-accent hover:opacity-80">
+          <span className="flex gap-2 opacity-0 group-hover:opacity-100">
+            <button onClick={() => setEditing(true)} className="text-[11px] font-medium text-accent hover:opacity-80">
               Editar
             </button>
-            <button onClick={eliminar} disabled={loading} className="text-xs text-danger hover:opacity-80">
+            <button onClick={eliminar} disabled={loading} className="text-[11px] text-bad hover:opacity-80">
               Eliminar
             </button>
           </span>
-          <span className={`font-medium ${movimiento.tipo === "ingreso" ? "text-accent" : "text-danger"}`}>
+          <span className={`font-mono font-medium ${movimiento.tipo === "ingreso" ? "text-good" : "text-bad"}`}>
             {movimiento.tipo === "ingreso" ? "+" : "-"}
-            {fmt(Number(movimiento.importe))}
+            {pesos(Number(movimiento.importe))}
           </span>
         </div>
-      </td>
-    </tr>
+      </Td>
+    </Row>
   );
 }

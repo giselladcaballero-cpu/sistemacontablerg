@@ -13,7 +13,7 @@ export default function ContabilidadTabs() {
   const pathname = usePathname();
 
   return (
-    <div className="mb-6 flex gap-1 border-b border-line">
+    <div className="mb-6 flex gap-1.5 rounded-full bg-surface-2 p-1 [width:fit-content]">
       {TABS.map((tab) => {
         const activo =
           tab.href === "/contabilidad" ? pathname === "/contabilidad" : pathname.startsWith(tab.href);
@@ -21,10 +21,8 @@ export default function ContabilidadTabs() {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`border-b-2 px-3 py-2 text-sm ${
-              activo
-                ? "border-accent font-medium text-ink"
-                : "border-transparent text-ink-soft hover:text-ink"
+            className={`rounded-full px-3.5 py-1.5 text-[12px] font-medium transition-colors ${
+              activo ? "bg-accent/[.15] text-accent" : "text-ink-2 hover:text-ink"
             }`}
           >
             {tab.label}

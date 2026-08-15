@@ -161,7 +161,7 @@ export const Td = ({
 );
 
 export const Row = ({ children, onClick }: { children: ReactNode; onClick?: () => void }) => (
-  <tr onClick={onClick} className={`hover:bg-accent/5 ${onClick ? "cursor-pointer" : ""}`}>
+  <tr onClick={onClick} className={`group hover:bg-accent/5 ${onClick ? "cursor-pointer" : ""}`}>
     {children}
   </tr>
 );

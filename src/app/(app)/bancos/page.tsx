@@ -1,14 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { getEmpresaActual } from "@/lib/empresa";
 import PageTitle from "@/components/page-title";
+import { Card, KpiCard, Table, Th, pesos } from "@/components/ui";
 import CuentaBancariaForm from "./cuenta-form";
 import MovimientoForm from "./movimiento-form";
 import CuentaBancariaRow from "./cuenta-row";
 import MovimientoRow from "./movimiento-row";
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n);
-}
 
 export default async function BancosPage() {
   const supabase = await createClient();
@@ -27,16 +24,14 @@ export default async function BancosPage() {
     <div className="space-y-6">
       <PageTitle>Bancos y Caja</PageTitle>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(215px,1fr))]">
         {(saldos ?? []).map((c) => (
-          <div key={c.id} className="rounded-lg border bg-surface p-4 shadow-sm">
-            <p className="text-xs text-ink-soft">
-              {c.nombre} {c.banco ? `· ${c.banco}` : ""}
-            </p>
-            <p className="mt-1 text-xl font-semibold text-ink">
-              {fmt(Number(c.saldo_actual))}
-            </p>
-          </div>
+          <KpiCard
+            key={c.id}
+            label={`${c.nombre}${c.banco ? ` · ${c.banco}` : ""}`}
+            value={pesos(Number(c.saldo_actual))}
+            tone={Number(c.saldo_actual) < 0 ? "bad" : "accent"}
+          />
         ))}
       </div>
 
@@ -53,17 +48,17 @@ export default async function BancosPage() {
           <MovimientoForm cuentas={cuentas ?? []} />
         </div>
         <div className="lg:col-span-2">
-          <div className="overflow-x-auto rounded-lg border bg-surface shadow-sm">
-            <table className="min-w-full divide-y divide-line text-sm">
-              <thead className="bg-bg">
+          <Card>
+            <Table>
+              <thead>
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Fecha</th>
-                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Cuenta</th>
-                  <th className="px-3 py-2 text-left font-medium text-ink-soft">Descripción</th>
-                  <th className="px-3 py-2 text-right font-medium text-ink-soft">Importe</th>
+                  <Th>Fecha</Th>
+                  <Th>Cuenta</Th>
+                  <Th>Descripción</Th>
+                  <Th right>Importe</Th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody>
                 {(movimientos ?? []).map((m) => (
                   <MovimientoRow
                     key={m.id}
@@ -73,14 +68,14 @@ export default async function BancosPage() {
                 ))}
                 {(movimientos ?? []).length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-3 py-6 text-center text-ink-soft">
+                    <td colSpan={4} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
                       Sin movimientos todavía
                     </td>
                   </tr>
                 )}
               </tbody>
-            </table>
-          </div>
+            </Table>
+          </Card>
         </div>
       </div>
     </div>
