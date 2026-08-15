@@ -10,7 +10,7 @@ export default async function TercerosPage() {
   const empresa = await getEmpresaActual();
   const [{ data: terceros }, { data: cuentas }] = await Promise.all([
     supabase.from("terceros").select("*").order("numero"),
-    supabase.from("plan_cuentas").select("id, codigo, nombre").eq("imputable", true).order("codigo"),
+    supabase.from("plan_cuentas").select("id, codigo, nombre").eq("imputable", true).eq("activa", true).order("codigo"),
   ]);
 
   return (

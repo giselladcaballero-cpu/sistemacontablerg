@@ -8,7 +8,7 @@ export default async function NuevoAsientoPage() {
   const supabase = await createClient();
   const empresa = await getEmpresaActual();
   const [{ data: cuentas }, { data: terceros }] = await Promise.all([
-    supabase.from("plan_cuentas").select("id, codigo, nombre").eq("imputable", true).order("codigo"),
+    supabase.from("plan_cuentas").select("id, codigo, nombre").eq("imputable", true).eq("activa", true).order("codigo"),
     supabase.from("terceros").select("id, razon_social").order("razon_social"),
   ]);
 

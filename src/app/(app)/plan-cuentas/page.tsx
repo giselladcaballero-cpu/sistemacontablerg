@@ -4,6 +4,7 @@ import PageTitle from "@/components/page-title";
 import { Card, Table, Th } from "@/components/ui";
 import PlanCuentaForm from "./cuenta-form";
 import PlanCuentaRow from "./cuenta-row";
+import PlanCuentasImport from "./plan-cuentas-import";
 
 export default async function PlanCuentasPage() {
   const supabase = await createClient();
@@ -17,8 +18,9 @@ export default async function PlanCuentasPage() {
     <div>
       <PageTitle className="mb-6">Plan de Cuentas</PageTitle>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-1">
+        <div className="space-y-6 lg:col-span-1">
           <PlanCuentaForm empresaId={empresa!.id} cuentas={cuentas ?? []} />
+          <PlanCuentasImport empresaId={empresa!.id} />
         </div>
         <div className="lg:col-span-2">
           <Card>

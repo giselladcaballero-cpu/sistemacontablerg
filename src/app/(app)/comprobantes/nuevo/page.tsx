@@ -12,7 +12,7 @@ export default async function NuevoComprobantePage() {
       .select("id, razon_social, tipo, cuenta_gasto_id")
       .eq("activo", true)
       .order("razon_social"),
-    supabase.from("plan_cuentas").select("id, codigo, nombre").eq("imputable", true).order("codigo"),
+    supabase.from("plan_cuentas").select("id, codigo, nombre").eq("imputable", true).eq("activa", true).order("codigo"),
   ]);
 
   return (

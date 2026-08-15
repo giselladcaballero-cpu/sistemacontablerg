@@ -11,7 +11,7 @@ export default async function EditarAsientoPage({ params }: { params: Promise<{ 
   const [{ data: asiento }, { data: lineas }, { data: cuentas }, { data: terceros }] = await Promise.all([
     supabase.from("asientos").select("*").eq("id", id).maybeSingle(),
     supabase.from("asiento_lineas").select("*").eq("asiento_id", id),
-    supabase.from("plan_cuentas").select("id, codigo, nombre").eq("imputable", true).order("codigo"),
+    supabase.from("plan_cuentas").select("id, codigo, nombre").eq("imputable", true).eq("activa", true).order("codigo"),
     supabase.from("terceros").select("id, razon_social").order("razon_social"),
   ]);
 

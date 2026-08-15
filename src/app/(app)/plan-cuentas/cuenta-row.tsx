@@ -58,6 +58,18 @@ export default function PlanCuentaRow({ cuenta }: { cuenta: PlanCuenta }) {
     router.refresh();
   }
 
+  async function reactivar() {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.from("plan_cuentas").update({ activa: true }).eq("id", cuenta.id);
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    router.refresh();
+  }
+
   if (editing) {
     return (
       <tr>
@@ -110,24 +122,37 @@ export default function PlanCuentaRow({ cuenta }: { cuenta: PlanCuenta }) {
 
   return (
     <Row>
-      <Td mono className={`text-ink-2 ${cuenta.imputable ? "" : "font-semibold"}`}>
+      <Td mono className={`text-ink-2 ${cuenta.imputable ? "" : "font-semibold"} ${cuenta.activa ? "" : "opacity-50"}`}>
         {cuenta.codigo}
       </Td>
-      <Td className={cuenta.imputable ? "" : "font-semibold"}>{cuenta.nombre}</Td>
-      <Td>
+      <Td className={`${cuenta.imputable ? "" : "font-semibold"} ${cuenta.activa ? "" : "opacity-50"}`}>
+        <div className="flex items-center gap-2">
+          {cuenta.nombre}
+          {!cuenta.activa && <Badge tone="muted">Inactiva</Badge>}
+        </div>
+      </Td>
+      <Td className={cuenta.activa ? "" : "opacity-50"}>
         <Badge tone={TIPO_TONE[cuenta.tipo] ?? "muted"}>{cuenta.tipo.replace("_", " ")}</Badge>
       </Td>
-      <Td className="capitalize text-ink-2">{cuenta.naturaleza}</Td>
+      <Td className={`capitalize text-ink-2 ${cuenta.activa ? "" : "opacity-50"}`}>{cuenta.naturaleza}</Td>
       <Td>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-ink-2">{cuenta.imputable ? "Sí" : "No"}</span>
+          <span className={`text-ink-2 ${cuenta.activa ? "" : "opacity-50"}`}>{cuenta.imputable ? "Sí" : "No"}</span>
           <span className="flex shrink-0 gap-2 opacity-0 group-hover:opacity-100">
-            <button onClick={() => setEditing(true)} className="text-[11px] font-medium text-accent hover:opacity-80">
-              Editar
-            </button>
-            <button onClick={eliminar} disabled={loading} className="text-[11px] text-bad hover:opacity-80">
-              Eliminar
-            </button>
+            {cuenta.activa ? (
+              <>
+                <button onClick={() => setEditing(true)} className="text-[11px] font-medium text-accent hover:opacity-80">
+                  Editar
+                </button>
+                <button onClick={eliminar} disabled={loading} className="text-[11px] text-bad hover:opacity-80">
+                  Eliminar
+                </button>
+              </>
+            ) : (
+              <button onClick={reactivar} disabled={loading} className="text-[11px] font-medium text-accent hover:opacity-80">
+                Reactivar
+              </button>
+            )}
           </span>
         </div>
       </Td>
