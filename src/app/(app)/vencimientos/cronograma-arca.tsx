@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Card, Button } from "@/components/ui";
 
 interface CronogramaItem {
   id: string;
@@ -69,7 +70,7 @@ export default function CronogramaArca({
 
   if (cronograma.length === 0) {
     return (
-      <p className="rounded-md bg-surface-muted px-3 py-2 text-sm text-ink-soft">
+      <p className="rounded-[6px] bg-surface-2 px-3 py-2 text-[12.5px] text-ink-2">
         No hay vencimientos oficiales de ARCA cargados para tu terminación de CUIT en este momento.
         Pedime que actualice el cronograma cuando quieras ver el próximo período.
       </p>
@@ -77,35 +78,32 @@ export default function CronogramaArca({
   }
 
   return (
-    <div className="rounded-lg border bg-surface p-4 shadow-sm">
-      <div className="mb-3 flex items-center justify-between">
-        <div>
-          <h2 className="text-sm font-medium text-ink">Vencimientos oficiales de ARCA</h2>
-          <p className="text-xs text-ink-soft">Según la terminación de tu CUIT. No incluye Ingresos Brutos (es provincial, no de ARCA).</p>
-        </div>
-        <button
-          onClick={agregarTodos}
-          disabled={loadingId !== null}
-          className="whitespace-nowrap rounded-md border border-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface-muted disabled:opacity-50"
-        >
+    <Card
+      title="Vencimientos oficiales de ARCA"
+      actions={
+        <Button onClick={agregarTodos} disabled={loadingId !== null} className="whitespace-nowrap">
           Agregar todos a mi agenda
-        </button>
-      </div>
-      <ul className="divide-y divide-line text-sm">
+        </Button>
+      }
+    >
+      <p className="px-[1.15rem] pt-3 text-[11px] text-ink-2">
+        Según la terminación de tu CUIT. No incluye Ingresos Brutos (es provincial, no de ARCA).
+      </p>
+      <ul className="divide-y divide-line text-[12.5px]">
         {cronograma.map((item) => {
           const agregado = yaAgregadosSet.has(`${item.concepto}|${item.fecha}`);
           return (
-            <li key={item.id} className="flex items-center justify-between py-1.5">
+            <li key={item.id} className="flex items-center justify-between px-[1.15rem] py-2">
               <span className="text-ink">
-                {item.concepto} <span className="text-ink-soft">— {item.fecha}</span>
+                {item.concepto} <span className="font-mono text-[11px] text-ink-2">— {item.fecha}</span>
               </span>
               {agregado ? (
-                <span className="text-xs text-ink-soft">En tu agenda</span>
+                <span className="text-[11px] text-ink-2">En tu agenda</span>
               ) : (
                 <button
                   onClick={() => agregar(item)}
                   disabled={loadingId !== null}
-                  className="text-xs font-medium text-accent hover:opacity-80 disabled:opacity-50"
+                  className="text-[11px] font-medium text-accent hover:opacity-80 disabled:opacity-50"
                 >
                   Agregar
                 </button>
@@ -114,7 +112,7 @@ export default function CronogramaArca({
           );
         })}
       </ul>
-      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
-    </div>
+      {error && <p className="px-[1.15rem] pb-3 pt-2 text-[11px] text-bad">{error}</p>}
+    </Card>
   );
 }

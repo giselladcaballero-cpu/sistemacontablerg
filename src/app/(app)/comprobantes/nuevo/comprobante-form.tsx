@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { CondicionVenta, DireccionComprobante, TipoComprobante } from "@/lib/types";
+import { Card, Field, Input, Select, Button, money } from "@/components/ui";
 
 interface Item {
   descripcion: string;
@@ -171,128 +172,80 @@ export default function ComprobanteForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 rounded-lg border bg-surface p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Dirección</label>
-          <select
-            value={direccion}
-            onChange={(e) => setDireccion(e.target.value as DireccionComprobante)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          >
-            <option value="venta">Venta</option>
-            <option value="compra">Compra</option>
-          </select>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <Card>
+        <div className="grid grid-cols-1 gap-4 p-[1.15rem] sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Dirección">
+            <Select value={direccion} onChange={(e) => setDireccion(e.target.value as DireccionComprobante)} className="w-full normal-case">
+              <option value="venta">Venta</option>
+              <option value="compra">Compra</option>
+            </Select>
+          </Field>
+          <Field label="Tipo">
+            <Select value={tipo} onChange={(e) => setTipo(e.target.value as TipoComprobante)} className="w-full normal-case">
+              {TIPOS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Punto de Venta">
+            <Input type="number" min={1} value={puntoVenta} onChange={(e) => setPuntoVenta(Number(e.target.value))} className="w-full normal-case" />
+          </Field>
+          <Field label="Fecha">
+            <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full normal-case" />
+          </Field>
+          <Field label="Cliente / Proveedor">
+            <Select value={terceroId} onChange={(e) => cambiarTercero(e.target.value)} className="w-full normal-case">
+              <option value="">Seleccionar...</option>
+              {terceros.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.razon_social}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Condición">
+            <Select value={condicionVenta} onChange={(e) => setCondicionVenta(e.target.value as CondicionVenta)} className="w-full normal-case">
+              <option value="contado">Contado</option>
+              <option value="cuenta_corriente">Cuenta Corriente</option>
+            </Select>
+          </Field>
+          {direccion === "compra" && (
+            <>
+              <Field label="Percepción IVA">
+                <Input type="number" step="0.01" value={percepcionIva} onChange={(e) => setPercepcionIva(Number(e.target.value))} className="w-full normal-case" />
+              </Field>
+              <Field label="Percepción IIBB">
+                <Input type="number" step="0.01" value={percepcionIibb} onChange={(e) => setPercepcionIibb(Number(e.target.value))} className="w-full normal-case" />
+              </Field>
+            </>
+          )}
         </div>
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Tipo</label>
-          <select
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value as TipoComprobante)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          >
-            {TIPOS.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Punto de Venta</label>
-          <input
-            type="number"
-            min={1}
-            value={puntoVenta}
-            onChange={(e) => setPuntoVenta(Number(e.target.value))}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Fecha</label>
-          <input
-            type="date"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Cliente / Proveedor</label>
-          <select
-            value={terceroId}
-            onChange={(e) => cambiarTercero(e.target.value)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          >
-            <option value="">Seleccionar...</option>
-            {terceros.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.razon_social}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Condición</label>
-          <select
-            value={condicionVenta}
-            onChange={(e) => setCondicionVenta(e.target.value as CondicionVenta)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          >
-            <option value="contado">Contado</option>
-            <option value="cuenta_corriente">Cuenta Corriente</option>
-          </select>
-        </div>
-        {direccion === "compra" && (
-          <>
-            <div>
-              <label className="block text-xs font-medium text-ink-soft">Percepción IVA</label>
-              <input
-                type="number"
-                step="0.01"
-                value={percepcionIva}
-                onChange={(e) => setPercepcionIva(Number(e.target.value))}
-                className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-ink-soft">Percepción IIBB</label>
-              <input
-                type="number"
-                step="0.01"
-                value={percepcionIibb}
-                onChange={(e) => setPercepcionIibb(Number(e.target.value))}
-                className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-              />
-            </div>
-          </>
-        )}
-      </div>
+      </Card>
 
-      <div className="rounded-lg border bg-surface p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-ink">Ítems</h2>
-          <button
-            type="button"
-            onClick={addItem}
-            className="text-sm text-ink-soft hover:text-ink"
-          >
+      <Card
+        title="Ítems"
+        actions={
+          <button type="button" onClick={addItem} className="text-[11px] font-medium text-accent hover:opacity-80">
             + Agregar ítem
           </button>
-        </div>
-        <div className="space-y-2">
+        }
+      >
+        <div className="space-y-2 p-[1.15rem]">
           {items.map((item, idx) => (
             <div key={idx} className="grid grid-cols-12 gap-2">
-              <input
+              <Input
                 placeholder="Descripción"
                 value={item.descripcion}
                 onChange={(e) => updateItem(idx, { descripcion: e.target.value })}
-                className="col-span-4 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="col-span-4 normal-case"
               />
-              <select
+              <Select
                 value={item.cuentaId}
                 onChange={(e) => updateItem(idx, { cuentaId: e.target.value })}
-                className="col-span-3 rounded-md border border-line px-2 py-1.5 text-xs"
+                className="col-span-3 normal-case"
               >
                 <option value="">Cuenta (opcional)...</option>
                 {cuentas.map((c) => (
@@ -300,70 +253,70 @@ export default function ComprobanteForm({
                     {c.codigo} — {c.nombre}
                   </option>
                 ))}
-              </select>
-              <input
+              </Select>
+              <Input
                 type="number"
                 min={0}
                 step="0.01"
                 placeholder="Cant."
                 value={item.cantidad}
                 onChange={(e) => updateItem(idx, { cantidad: Number(e.target.value) })}
-                className="col-span-1 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="col-span-1 normal-case"
               />
-              <input
+              <Input
                 type="number"
                 min={0}
                 step="0.01"
                 placeholder="Precio Unit."
                 value={item.precio_unitario}
                 onChange={(e) => updateItem(idx, { precio_unitario: Number(e.target.value) })}
-                className="col-span-2 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="col-span-2 normal-case"
               />
-              <select
+              <Select
                 value={item.alicuota_iva}
                 onChange={(e) => updateItem(idx, { alicuota_iva: Number(e.target.value) })}
-                className="col-span-1 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="col-span-1 normal-case"
               >
                 <option value={0}>0%</option>
                 <option value={10.5}>10.5%</option>
                 <option value={21}>21%</option>
                 <option value={27}>27%</option>
-              </select>
+              </Select>
               <button
                 type="button"
                 onClick={() => removeItem(idx)}
-                className="col-span-1 text-sm text-danger hover:text-danger"
+                className="col-span-1 text-[13px] text-bad hover:opacity-80"
               >
                 ✕
               </button>
             </div>
           ))}
         </div>
-        <p className="mt-2 text-xs text-ink-soft">
+        <p className="px-[1.15rem] pb-2 text-[11px] text-ink-2">
           Si no elegís cuenta, se usa la cuenta de gasto/activo del proveedor (o Costo de Mercadería
           Vendida si tampoco tiene una configurada).
         </p>
-        <div className="mt-4 flex flex-wrap justify-end gap-6 border-t pt-3 text-sm">
-          <p>
-            Subtotal: <span className="font-medium">{subtotal.toFixed(2)}</span>
+        <div className="flex flex-wrap justify-end gap-6 border-t border-line px-[1.15rem] py-3 text-[12.5px]">
+          <p className="text-ink-2">
+            Subtotal: <span className="font-mono font-medium text-ink">{money(subtotal)}</span>
           </p>
-          <p>
-            IVA: <span className="font-medium">{iva.toFixed(2)}</span>
+          <p className="text-ink-2">
+            IVA: <span className="font-mono font-medium text-ink">{money(iva)}</span>
           </p>
           {direccion === "compra" && (percepcionIva > 0 || percepcionIibb > 0) && (
-            <p>
+            <p className="text-ink-2">
               Percepciones:{" "}
-              <span className="font-medium">{(percepcionIva + percepcionIibb).toFixed(2)}</span>
+              <span className="font-mono font-medium text-ink">{money(percepcionIva + percepcionIibb)}</span>
             </p>
           )}
-          <p>
-            Total: <span className="font-semibold">{total.toFixed(2)}</span>
+          <p className="text-ink-2">
+            Total: <span className="font-mono text-[15px] font-semibold text-accent">{money(total)}</span>
           </p>
         </div>
-      </div>
+      </Card>
 
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm text-ink">
+        <label className="flex items-center gap-2 text-[12.5px] text-ink">
           <input
             type="checkbox"
             checked={confirmarYa}
@@ -372,14 +325,10 @@ export default function ComprobanteForm({
           Confirmar y generar asiento contable automáticamente
         </label>
         <div className="flex items-center gap-3">
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
-          >
+          {error && <p className="text-[12px] text-bad">{error}</p>}
+          <Button type="submit" variant="primary" disabled={loading}>
             {loading ? "Guardando..." : "Guardar Comprobante"}
-          </button>
+          </Button>
         </div>
       </div>
     </form>

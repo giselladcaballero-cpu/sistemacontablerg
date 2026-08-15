@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Card, Field, Input, Select, Button, Table, Th, pesos } from "@/components/ui";
 
 interface Factura {
   comprobante_id: string;
@@ -22,10 +23,6 @@ interface Factura {
   tasa_retencion_ganancias: number;
   sujeto_retencion_suss: boolean;
   tasa_retencion_suss: number;
-}
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n);
 }
 
 export default function OrdenPagoForm({
@@ -159,90 +156,75 @@ export default function OrdenPagoForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 rounded-lg border bg-surface p-4 shadow-sm sm:grid-cols-3">
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Proveedor</label>
-          <select
-            value={terceroId}
-            onChange={(e) => cambiarProveedor(e.target.value)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          >
-            <option value="">Seleccionar...</option>
-            {proveedores.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.nombre}
-              </option>
-            ))}
-          </select>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <Card>
+        <div className="grid grid-cols-1 gap-4 p-[1.15rem] sm:grid-cols-3">
+          <Field label="Proveedor">
+            <Select value={terceroId} onChange={(e) => cambiarProveedor(e.target.value)} className="w-full normal-case">
+              <option value="">Seleccionar...</option>
+              {proveedores.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nombre}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Fecha">
+            <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full normal-case" />
+          </Field>
+          <Field label="Pagar desde">
+            <Select value={cuentaBancariaId} onChange={(e) => setCuentaBancariaId(e.target.value)} className="w-full normal-case">
+              <option value="">Seleccionar cuenta...</option>
+              {cuentas.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </Select>
+          </Field>
         </div>
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Fecha</label>
-          <input
-            type="date"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Pagar desde</label>
-          <select
-            value={cuentaBancariaId}
-            onChange={(e) => setCuentaBancariaId(e.target.value)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          >
-            <option value="">Seleccionar cuenta...</option>
-            {cuentas.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      </Card>
 
       {terceroId && (
-        <div className="rounded-lg border bg-surface p-4 shadow-sm">
-          <h2 className="mb-3 text-sm font-medium text-ink">Facturas pendientes</h2>
+        <Card title="Facturas pendientes">
           {facturasDelProveedor.length === 0 ? (
-            <p className="text-sm text-ink-soft">Este proveedor no tiene facturas pendientes.</p>
+            <p className="p-[1.15rem] text-[12.5px] text-ink-2">Este proveedor no tiene facturas pendientes.</p>
           ) : (
-            <table className="min-w-full text-sm">
+            <Table>
               <thead>
-                <tr className="text-left text-ink-soft">
-                  <th className="w-8"></th>
-                  <th className="py-1 pr-4">Comprobante</th>
-                  <th className="py-1 pr-4">Fecha</th>
-                  <th className="py-1 pr-4 text-right">Total</th>
+                <tr>
+                  <Th>{""}</Th>
+                  <Th>Comprobante</Th>
+                  <Th>Fecha</Th>
+                  <Th right>Total</Th>
                 </tr>
               </thead>
               <tbody>
                 {facturasDelProveedor.map((f) => (
-                  <tr key={f.comprobante_id} className="border-t border-line">
-                    <td className="py-1.5">
+                  <tr key={f.comprobante_id} className="border-b border-line hover:bg-accent/5">
+                    <td className="px-3 py-2">
                       <input
                         type="checkbox"
                         checked={seleccionadas.has(f.comprobante_id)}
                         onChange={() => toggleFactura(f.comprobante_id)}
                       />
                     </td>
-                    <td className="py-1.5 pr-4 uppercase text-ink">
+                    <td className="px-3 py-2 font-mono text-[11px] uppercase text-ink">
                       {f.tipo.replace("_", " ")} {f.punto_venta.toString().padStart(4, "0")}-
                       {(f.numero ?? 0).toString().padStart(8, "0")}
                     </td>
-                    <td className="py-1.5 pr-4 text-ink-soft">{f.fecha}</td>
-                    <td className="py-1.5 pr-4 text-right text-ink">{fmt(Number(f.total))}</td>
+                    <td className="px-3 py-2 font-mono text-[11px] text-ink-2">{f.fecha}</td>
+                    <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{pesos(Number(f.total))}</td>
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </Table>
           )}
-        </div>
+        </Card>
       )}
 
       {seleccionadas.size > 0 && !muestraIva && !muestraGanancias && !muestraIibb && !muestraSuss && (
-        <p className="text-sm text-ink-soft">
+        <p className="text-[12.5px] text-ink-2">
           No corresponde practicar retenciones en este pago: o tu empresa no es agente de retención
           (revisá el{" "}
           <a href="/perfil" className="text-accent hover:opacity-80">
@@ -257,125 +239,118 @@ export default function OrdenPagoForm({
       )}
 
       {seleccionadas.size > 0 && (muestraIva || muestraGanancias || muestraIibb || muestraSuss) && (
-        <div className="rounded-lg border bg-surface p-4 shadow-sm">
-          <h2 className="mb-1 text-sm font-medium text-ink">Retenciones</h2>
-          <p className="mb-3 text-xs text-ink-soft">
-            Alícuotas configuradas en la ficha de este proveedor — revisalas antes de confirmar.
-          </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {muestraIva && (
-              <div>
-                <label className="block text-xs font-medium text-ink-soft">Retención IVA</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={retencionIva}
-                  onChange={(e) => setRetencionIva(Number(e.target.value))}
-                  className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setRetencionIva(Math.round(total * (proveedorInfo.tasa_retencion_iva / 100) * 100) / 100)
-                  }
-                  className="mt-1 text-xs text-accent hover:opacity-80"
-                >
-                  Aplicar {proveedorInfo.tasa_retencion_iva}%
-                </button>
-              </div>
-            )}
-            {muestraGanancias && (
-              <div>
-                <label className="block text-xs font-medium text-ink-soft">Retención Ganancias</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={retencionGanancias}
-                  onChange={(e) => setRetencionGanancias(Number(e.target.value))}
-                  className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setRetencionGanancias(
-                      Math.round(total * (proveedorInfo.tasa_retencion_ganancias / 100) * 100) / 100
-                    )
-                  }
-                  className="mt-1 text-xs text-accent hover:opacity-80"
-                >
-                  Aplicar {proveedorInfo.tasa_retencion_ganancias}%
-                </button>
-              </div>
-            )}
-            {muestraIibb && (
-              <div>
-                <label className="block text-xs font-medium text-ink-soft">Retención IIBB</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={retencionIibb}
-                  onChange={(e) => setRetencionIibb(Number(e.target.value))}
-                  className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setRetencionIibb(Math.round(total * (proveedorInfo.tasa_retencion_iibb / 100) * 100) / 100)
-                  }
-                  className="mt-1 text-xs text-accent hover:opacity-80"
-                >
-                  Aplicar {proveedorInfo.tasa_retencion_iibb}%
-                </button>
-              </div>
-            )}
-            {muestraSuss && (
-              <div>
-                <label className="block text-xs font-medium text-ink-soft">Retención SUSS</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={retencionSuss}
-                  onChange={(e) => setRetencionSuss(Number(e.target.value))}
-                  className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setRetencionSuss(Math.round(total * (proveedorInfo.tasa_retencion_suss / 100) * 100) / 100)
-                  }
-                  className="mt-1 text-xs text-accent hover:opacity-80"
-                >
-                  Aplicar {proveedorInfo.tasa_retencion_suss}%
-                </button>
-              </div>
-            )}
+        <Card title="Retenciones">
+          <div className="p-[1.15rem]">
+            <p className="mb-3 text-[11px] text-ink-2">
+              Alícuotas configuradas en la ficha de este proveedor — revisalas antes de confirmar.
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {muestraIva && (
+                <Field label="Retención IVA">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={retencionIva}
+                    onChange={(e) => setRetencionIva(Number(e.target.value))}
+                    className="w-full normal-case"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setRetencionIva(Math.round(total * (proveedorInfo.tasa_retencion_iva / 100) * 100) / 100)
+                    }
+                    className="mt-1 text-left text-[11px] normal-case text-accent hover:opacity-80"
+                  >
+                    Aplicar {proveedorInfo.tasa_retencion_iva}%
+                  </button>
+                </Field>
+              )}
+              {muestraGanancias && (
+                <Field label="Retención Ganancias">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={retencionGanancias}
+                    onChange={(e) => setRetencionGanancias(Number(e.target.value))}
+                    className="w-full normal-case"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setRetencionGanancias(
+                        Math.round(total * (proveedorInfo.tasa_retencion_ganancias / 100) * 100) / 100
+                      )
+                    }
+                    className="mt-1 text-left text-[11px] normal-case text-accent hover:opacity-80"
+                  >
+                    Aplicar {proveedorInfo.tasa_retencion_ganancias}%
+                  </button>
+                </Field>
+              )}
+              {muestraIibb && (
+                <Field label="Retención IIBB">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={retencionIibb}
+                    onChange={(e) => setRetencionIibb(Number(e.target.value))}
+                    className="w-full normal-case"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setRetencionIibb(Math.round(total * (proveedorInfo.tasa_retencion_iibb / 100) * 100) / 100)
+                    }
+                    className="mt-1 text-left text-[11px] normal-case text-accent hover:opacity-80"
+                  >
+                    Aplicar {proveedorInfo.tasa_retencion_iibb}%
+                  </button>
+                </Field>
+              )}
+              {muestraSuss && (
+                <Field label="Retención SUSS">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={retencionSuss}
+                    onChange={(e) => setRetencionSuss(Number(e.target.value))}
+                    className="w-full normal-case"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setRetencionSuss(Math.round(total * (proveedorInfo.tasa_retencion_suss / 100) * 100) / 100)
+                    }
+                    className="mt-1 text-left text-[11px] normal-case text-accent hover:opacity-80"
+                  >
+                    Aplicar {proveedorInfo.tasa_retencion_suss}%
+                  </button>
+                </Field>
+              )}
+            </div>
+            <div className="mt-4 flex justify-end gap-6 border-t border-line pt-3 text-[12.5px]">
+              <p className="text-ink-2">
+                Total facturas: <span className="font-mono font-medium text-ink">{pesos(total)}</span>
+              </p>
+              <p className="text-ink-2">
+                Retenciones:{" "}
+                <span className="font-mono font-medium text-ink">
+                  {pesos(retencionIva + retencionGanancias + retencionIibb + retencionSuss)}
+                </span>
+              </p>
+              <p className="text-ink-2">
+                Neto a pagar: <span className="font-mono text-[15px] font-semibold text-accent">{pesos(neto)}</span>
+              </p>
+            </div>
           </div>
-          <div className="mt-4 flex justify-end gap-6 border-t pt-3 text-sm">
-            <p>
-              Total facturas: <span className="font-medium">{fmt(total)}</span>
-            </p>
-            <p>
-              Retenciones:{" "}
-              <span className="font-medium">
-                {fmt(retencionIva + retencionGanancias + retencionIibb + retencionSuss)}
-              </span>
-            </p>
-            <p>
-              Neto a pagar: <span className="font-semibold">{fmt(neto)}</span>
-            </p>
-          </div>
-        </div>
+        </Card>
       )}
 
       <div className="flex items-center justify-end gap-3">
-        {error && <p className="text-sm text-danger">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading || seleccionadas.size === 0}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
-        >
+        {error && <p className="text-[12px] text-bad">{error}</p>}
+        <Button type="submit" variant="primary" disabled={loading || seleccionadas.size === 0}>
           {loading ? "Generando..." : "Confirmar Orden de Pago"}
-        </button>
+        </Button>
       </div>
     </form>
   );

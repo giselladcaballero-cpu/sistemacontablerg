@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import PageTitle from "@/components/page-title";
+import { Field, Input, Button } from "@/components/ui";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,57 +47,38 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg px-4">
-      <div className="w-full max-w-sm rounded-lg border bg-surface p-8 shadow-sm">
+      <div className="w-full max-w-sm rounded-[10px] border border-line bg-surface p-8">
         <PageTitle className="mb-1">Sistema Contable RG</PageTitle>
-        <p className="mb-6 text-sm text-ink-soft">
+        <p className="mb-6 text-[12.5px] text-ink-2">
           {mode === "login" ? "Ingresá a tu cuenta" : "Creá tu cuenta"}
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === "signup" && (
-            <div>
-              <label className="block text-sm font-medium text-ink">Nombre</label>
-              <input
-                type="text"
-                required
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm"
-              />
-            </div>
+            <Field label="Nombre">
+              <Input type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)} className="w-full normal-case" />
+            </Field>
           )}
-          <div>
-            <label className="block text-sm font-medium text-ink">Email</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-ink">Contraseña</label>
-            <input
+          <Field label="Email">
+            <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full normal-case" />
+          </Field>
+          <Field label="Contraseña">
+            <Input
               type="password"
               required
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm"
+              className="w-full normal-case"
             />
-          </div>
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
-          >
+          </Field>
+          {error && <p className="text-[12px] text-bad">{error}</p>}
+          <Button type="submit" variant="primary" disabled={loading} className="w-full">
             {loading ? "..." : mode === "login" ? "Ingresar" : "Registrarme"}
-          </button>
+          </Button>
         </form>
         <button
           onClick={() => setMode(mode === "login" ? "signup" : "login")}
-          className="mt-4 text-sm text-ink-soft hover:text-ink"
+          className="mt-4 text-[12.5px] text-ink-2 hover:text-ink"
         >
           {mode === "login" ? "¿No tenés cuenta? Registrate" : "¿Ya tenés cuenta? Ingresá"}
         </button>

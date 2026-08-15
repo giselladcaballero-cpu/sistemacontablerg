@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Field, Input, Select, Button } from "@/components/ui";
 
 export default function MovimientoForm({ cuentas }: { cuentas: { id: string; nombre: string }[] }) {
   const router = useRouter();
@@ -41,72 +42,45 @@ export default function MovimientoForm({ cuentas }: { cuentas: { id: string; nom
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-surface p-4 shadow-sm">
-      <h2 className="text-sm font-medium text-ink">Nuevo Movimiento</h2>
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Cuenta</label>
-        <select
-          value={cuentaId}
-          onChange={(e) => setCuentaId(e.target.value)}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-        >
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-[10px] border border-line bg-surface p-[1.15rem]">
+      <h2 className="text-[12px] font-medium uppercase tracking-[.07em] text-ink-2">Nuevo Movimiento</h2>
+      <Field label="Cuenta">
+        <Select value={cuentaId} onChange={(e) => setCuentaId(e.target.value)} className="w-full normal-case">
           <option value="">Seleccionar...</option>
           {cuentas.map((c) => (
             <option key={c.id} value={c.id}>
               {c.nombre}
             </option>
           ))}
-        </select>
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Fecha</label>
-        <input
-          type="date"
-          value={fecha}
-          onChange={(e) => setFecha(e.target.value)}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-        />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Descripción</label>
-        <input
-          required
-          value={descripcion}
-          onChange={(e) => setDescripcion(e.target.value)}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-        />
-      </div>
+        </Select>
+      </Field>
+      <Field label="Fecha">
+        <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full normal-case" />
+      </Field>
+      <Field label="Descripción">
+        <Input required value={descripcion} onChange={(e) => setDescripcion(e.target.value)} className="w-full normal-case" />
+      </Field>
       <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Tipo</label>
-          <select
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value as "ingreso" | "egreso")}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          >
+        <Field label="Tipo">
+          <Select value={tipo} onChange={(e) => setTipo(e.target.value as "ingreso" | "egreso")} className="w-full normal-case">
             <option value="ingreso">Ingreso</option>
             <option value="egreso">Egreso</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Importe</label>
-          <input
+          </Select>
+        </Field>
+        <Field label="Importe">
+          <Input
             type="number"
             step="0.01"
             value={importe}
             onChange={(e) => setImporte(Number(e.target.value))}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
+            className="w-full normal-case"
           />
-        </div>
+        </Field>
       </div>
-      {error && <p className="text-xs text-danger">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
-      >
+      {error && <p className="text-[11px] text-bad">{error}</p>}
+      <Button type="submit" variant="primary" disabled={loading} className="w-full">
         {loading ? "Guardando..." : "Guardar"}
-      </button>
+      </Button>
     </form>
   );
 }

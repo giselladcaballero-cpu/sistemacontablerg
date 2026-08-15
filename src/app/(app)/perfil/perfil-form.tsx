@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { CondicionIva } from "@/lib/types";
+import { Card, Field, Input, Select, Button } from "@/components/ui";
 
 const JURISDICCIONES = [
   "CABA",
@@ -118,111 +119,76 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+    <form onSubmit={handleSubmit} className="max-w-3xl space-y-5">
       {!esAdmin && (
-        <p className="rounded-md bg-surface-muted px-3 py-2 text-sm text-ink-soft">
+        <p className="rounded-[6px] bg-surface-2 px-3 py-2 text-[12.5px] text-ink-2">
           Solo un administrador de la empresa puede editar estos datos. Podés verlos pero no guardar cambios.
         </p>
       )}
 
-      <fieldset disabled={!esAdmin} className="space-y-6 disabled:opacity-70">
-        <div className="grid grid-cols-1 gap-4 rounded-lg border bg-surface p-4 shadow-sm sm:grid-cols-2">
-          <div>
-            <label className="block text-xs font-medium text-ink-soft">Razón Social</label>
-            <input
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-            />
+      <fieldset disabled={!esAdmin} className="space-y-5 disabled:opacity-70">
+        <Card>
+          <div className="grid grid-cols-1 gap-4 p-[1.15rem] sm:grid-cols-2">
+            <Field label="Razón Social">
+              <Input value={nombre} onChange={(e) => setNombre(e.target.value)} className="w-full normal-case" />
+            </Field>
+            <Field label="CUIT">
+              <Input value={cuit} onChange={(e) => setCuit(e.target.value)} placeholder="20-12345678-9" className="w-full normal-case" />
+            </Field>
+            <Field label="Condición ante el IVA">
+              <Select value={condicionIva} onChange={(e) => setCondicionIva(e.target.value as CondicionIva)} className="w-full normal-case">
+                <option value="responsable_inscripto">Responsable Inscripto</option>
+                <option value="monotributo">Monotributo</option>
+                <option value="exento">Exento</option>
+                <option value="consumidor_final">Consumidor Final</option>
+                <option value="no_categorizado">No Categorizado</option>
+              </Select>
+            </Field>
+            <Field label="N° de Inscripción IIBB">
+              <Input value={numeroIibb} onChange={(e) => setNumeroIibb(e.target.value)} className="w-full normal-case" />
+            </Field>
+            <Field label="Inicio de Actividades">
+              <Input type="date" value={inicioActividades} onChange={(e) => setInicioActividades(e.target.value)} className="w-full normal-case" />
+            </Field>
+            <Field label="Domicilio Fiscal">
+              <Input value={domicilioFiscal} onChange={(e) => setDomicilioFiscal(e.target.value)} className="w-full normal-case" />
+            </Field>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-ink-soft">CUIT</label>
-            <input
-              value={cuit}
-              onChange={(e) => setCuit(e.target.value)}
-              placeholder="20-12345678-9"
-              className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-ink-soft">Condición ante el IVA</label>
-            <select
-              value={condicionIva}
-              onChange={(e) => setCondicionIva(e.target.value as CondicionIva)}
-              className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-            >
-              <option value="responsable_inscripto">Responsable Inscripto</option>
-              <option value="monotributo">Monotributo</option>
-              <option value="exento">Exento</option>
-              <option value="consumidor_final">Consumidor Final</option>
-              <option value="no_categorizado">No Categorizado</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-ink-soft">N° de Inscripción IIBB</label>
-            <input
-              value={numeroIibb}
-              onChange={(e) => setNumeroIibb(e.target.value)}
-              className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-ink-soft">Inicio de Actividades</label>
-            <input
-              type="date"
-              value={inicioActividades}
-              onChange={(e) => setInicioActividades(e.target.value)}
-              className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-ink-soft">Domicilio Fiscal</label>
-            <input
-              value={domicilioFiscal}
-              onChange={(e) => setDomicilioFiscal(e.target.value)}
-              className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-            />
-          </div>
-        </div>
+        </Card>
 
-        <div className="rounded-lg border bg-surface p-4 shadow-sm">
-          <h2 className="mb-1 text-sm font-medium text-ink">Jurisdicciones de Ingresos Brutos</h2>
-          <p className="mb-3 text-xs text-ink-soft">
-            Marcá las provincias donde tenés inscripción de IIBB (Convenio Multilateral si es más de una).
-          </p>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 md:grid-cols-4">
-            {JURISDICCIONES.map((j) => (
-              <label key={j} className="flex items-center gap-2 text-sm text-ink-soft">
-                <input
-                  type="checkbox"
-                  checked={jurisdicciones.has(j)}
-                  onChange={() => toggleJurisdiccion(j)}
-                />
-                {j}
-              </label>
-            ))}
+        <Card title="Jurisdicciones de Ingresos Brutos">
+          <div className="p-[1.15rem]">
+            <p className="mb-3 text-[11px] text-ink-2">
+              Marcá las provincias donde tenés inscripción de IIBB (Convenio Multilateral si es más de una).
+            </p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 md:grid-cols-4">
+              {JURISDICCIONES.map((j) => (
+                <label key={j} className="flex items-center gap-2 text-[12px] text-ink-2">
+                  <input type="checkbox" checked={jurisdicciones.has(j)} onChange={() => toggleJurisdiccion(j)} />
+                  {j}
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        </Card>
 
-        <div className="rounded-lg border bg-surface p-4 shadow-sm">
-          <h2 className="mb-3 text-sm font-medium text-ink">Régimen Laboral</h2>
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm text-ink-soft">
+        <Card title="Régimen Laboral">
+          <div className="space-y-2 p-[1.15rem]">
+            <label className="flex items-center gap-2 text-[12px] text-ink-2">
               <input type="checkbox" checked={esEmpleador} onChange={(e) => setEsEmpleador(e.target.checked)} />
               Es empleador (tiene personal en relación de dependencia)
             </label>
           </div>
-        </div>
+        </Card>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border bg-surface p-4 shadow-sm">
-            <h2 className="mb-3 text-sm font-medium text-ink">Agente de Retención</h2>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm text-ink-soft">
+          <Card title="Agente de Retención">
+            <div className="space-y-2 p-[1.15rem]">
+              <label className="flex items-center gap-2 text-[12px] text-ink-2">
                 <input type="checkbox" checked={agenteRetIva} onChange={(e) => setAgenteRetIva(e.target.checked)} />
                 IVA
               </label>
-              <label className="flex items-center gap-2 text-sm text-ink-soft">
+              <label className="flex items-center gap-2 text-[12px] text-ink-2">
                 <input
                   type="checkbox"
                   checked={agenteRetGanancias}
@@ -230,7 +196,7 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
                 />
                 Ganancias
               </label>
-              <label className="flex items-center gap-2 text-sm text-ink-soft">
+              <label className="flex items-center gap-2 text-[12px] text-ink-2">
                 <input
                   type="checkbox"
                   checked={retencionesSuss}
@@ -239,20 +205,19 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
                 SUSS (a proveedores de servicios con personal: limpieza, seguridad, construcción,
                 cooperativas de trabajo — no es sobre tus propios empleados)
               </label>
-              <label className="flex items-center gap-2 text-sm text-ink-soft">
+              <label className="flex items-center gap-2 text-[12px] text-ink-2">
                 <input type="checkbox" checked={agenteRetIibb} onChange={(e) => setAgenteRetIibb(e.target.checked)} />
                 Ingresos Brutos
               </label>
             </div>
-          </div>
-          <div className="rounded-lg border bg-surface p-4 shadow-sm">
-            <h2 className="mb-3 text-sm font-medium text-ink">Agente de Percepción</h2>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm text-ink-soft">
+          </Card>
+          <Card title="Agente de Percepción">
+            <div className="space-y-2 p-[1.15rem]">
+              <label className="flex items-center gap-2 text-[12px] text-ink-2">
                 <input type="checkbox" checked={agentePercIva} onChange={(e) => setAgentePercIva(e.target.checked)} />
                 IVA
               </label>
-              <label className="flex items-center gap-2 text-sm text-ink-soft">
+              <label className="flex items-center gap-2 text-[12px] text-ink-2">
                 <input
                   type="checkbox"
                   checked={agentePercIibb}
@@ -261,19 +226,15 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
                 Ingresos Brutos
               </label>
             </div>
-          </div>
+          </Card>
         </div>
 
         <div className="flex items-center justify-end gap-3">
-          {guardado && <p className="text-sm text-accent">Guardado</p>}
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
-          >
+          {guardado && <p className="text-[12px] text-good">Guardado</p>}
+          {error && <p className="text-[12px] text-bad">{error}</p>}
+          <Button type="submit" variant="primary" disabled={loading}>
             {loading ? "Guardando..." : "Guardar"}
-          </button>
+          </Button>
         </div>
       </fieldset>
     </form>

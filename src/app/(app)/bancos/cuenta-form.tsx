@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Field, Input, Button } from "@/components/ui";
 
 export default function CuentaBancariaForm({ empresaId }: { empresaId: string }) {
   const router = useRouter();
@@ -35,43 +36,27 @@ export default function CuentaBancariaForm({ empresaId }: { empresaId: string })
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-surface p-4 shadow-sm">
-      <h2 className="text-sm font-medium text-ink">Nueva Cuenta / Caja</h2>
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Nombre</label>
-        <input
-          required
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-        />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Banco</label>
-        <input
-          value={banco}
-          onChange={(e) => setBanco(e.target.value)}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-        />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Saldo Inicial</label>
-        <input
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-[10px] border border-line bg-surface p-[1.15rem]">
+      <h2 className="text-[12px] font-medium uppercase tracking-[.07em] text-ink-2">Nueva Cuenta / Caja</h2>
+      <Field label="Nombre">
+        <Input required value={nombre} onChange={(e) => setNombre(e.target.value)} className="normal-case" />
+      </Field>
+      <Field label="Banco">
+        <Input value={banco} onChange={(e) => setBanco(e.target.value)} className="normal-case" />
+      </Field>
+      <Field label="Saldo Inicial">
+        <Input
           type="number"
           step="0.01"
           value={saldoInicial}
           onChange={(e) => setSaldoInicial(Number(e.target.value))}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
+          className="normal-case"
         />
-      </div>
-      {error && <p className="text-xs text-danger">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
-      >
+      </Field>
+      {error && <p className="text-[11px] text-bad">{error}</p>}
+      <Button type="submit" variant="primary" disabled={loading} className="w-full">
         {loading ? "Guardando..." : "Guardar"}
-      </button>
+      </Button>
     </form>
   );
 }

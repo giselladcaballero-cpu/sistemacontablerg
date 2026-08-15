@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Card, Field, Input, Select, Button, money } from "@/components/ui";
 
 interface Linea {
   cuentaId: string;
@@ -134,42 +135,33 @@ export default function AsientoEditForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 rounded-lg border bg-surface p-4 shadow-sm sm:grid-cols-2">
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Fecha</label>
-          <input
-            type="date"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          />
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <Card>
+        <div className="grid grid-cols-1 gap-4 p-[1.15rem] sm:grid-cols-2">
+          <Field label="Fecha">
+            <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full normal-case" />
+          </Field>
+          <Field label="Descripción">
+            <Input required value={descripcion} onChange={(e) => setDescripcion(e.target.value)} className="w-full normal-case" />
+          </Field>
         </div>
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Descripción</label>
-          <input
-            required
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          />
-        </div>
-      </div>
+      </Card>
 
-      <div className="rounded-lg border bg-surface p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-ink">Líneas</h2>
-          <button type="button" onClick={addLinea} className="text-sm text-ink-soft hover:text-ink">
+      <Card
+        title="Líneas"
+        actions={
+          <button type="button" onClick={addLinea} className="text-[11px] font-medium text-accent hover:opacity-80">
             + Agregar línea
           </button>
-        </div>
-        <div className="space-y-2">
+        }
+      >
+        <div className="space-y-2 p-[1.15rem]">
           {lineas.map((l, idx) => (
             <div key={idx} className="grid grid-cols-12 gap-2">
-              <select
+              <Select
                 value={l.cuentaId}
                 onChange={(e) => updateLinea(idx, { cuentaId: e.target.value })}
-                className="col-span-4 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="col-span-4 normal-case"
               >
                 <option value="">Cuenta...</option>
                 {cuentas.map((c) => (
@@ -177,11 +169,11 @@ export default function AsientoEditForm({
                     {c.codigo} — {c.nombre}
                   </option>
                 ))}
-              </select>
-              <select
+              </Select>
+              <Select
                 value={l.terceroId}
                 onChange={(e) => updateLinea(idx, { terceroId: e.target.value })}
-                className="col-span-3 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="col-span-3 normal-case"
               >
                 <option value="">Tercero (opcional)</option>
                 {terceros.map((t) => (
@@ -189,65 +181,61 @@ export default function AsientoEditForm({
                     {t.razon_social}
                   </option>
                 ))}
-              </select>
-              <input
+              </Select>
+              <Input
                 type="number"
                 step="0.01"
                 placeholder="Debe"
                 value={l.debe || ""}
                 onChange={(e) => updateLinea(idx, { debe: Number(e.target.value), haber: 0 })}
-                className="col-span-2 rounded-md border border-line px-2 py-1.5 text-right text-sm"
+                className="col-span-2 text-right normal-case"
               />
-              <input
+              <Input
                 type="number"
                 step="0.01"
                 placeholder="Haber"
                 value={l.haber || ""}
                 onChange={(e) => updateLinea(idx, { haber: Number(e.target.value), debe: 0 })}
-                className="col-span-2 rounded-md border border-line px-2 py-1.5 text-right text-sm"
+                className="col-span-2 text-right normal-case"
               />
               <button
                 type="button"
                 onClick={() => removeLinea(idx)}
                 disabled={lineas.length <= 2}
-                className="col-span-1 text-sm text-danger hover:opacity-80 disabled:opacity-30"
+                className="col-span-1 text-[13px] text-bad hover:opacity-80 disabled:opacity-30"
               >
                 ✕
               </button>
             </div>
           ))}
         </div>
-        <div className="mt-4 flex justify-end gap-6 border-t pt-3 text-sm">
-          <p>
-            Debe: <span className="font-medium">{totalDebe.toFixed(2)}</span>
+        <div className="flex justify-end gap-6 border-t border-line px-[1.15rem] py-3 text-[12.5px]">
+          <p className="text-ink-2">
+            Debe: <span className="font-mono font-medium text-ink">{money(totalDebe)}</span>
           </p>
-          <p>
-            Haber: <span className="font-medium">{totalHaber.toFixed(2)}</span>
+          <p className="text-ink-2">
+            Haber: <span className="font-mono font-medium text-ink">{money(totalHaber)}</span>
           </p>
-          <p className={diferencia !== 0 ? "text-danger" : "text-accent"}>
-            Diferencia: <span className="font-semibold">{diferencia.toFixed(2)}</span>
+          <p className={diferencia !== 0 ? "text-bad" : "text-good"}>
+            Diferencia: <span className="font-mono font-semibold">{money(diferencia)}</span>
           </p>
         </div>
-      </div>
+      </Card>
 
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={eliminarAsiento}
           disabled={loading}
-          className="text-sm text-danger hover:opacity-80"
+          className="text-[12px] text-bad hover:opacity-80"
         >
           Eliminar asiento
         </button>
         <div className="flex items-center gap-3">
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading || !balanceado}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
-          >
+          {error && <p className="text-[12px] text-bad">{error}</p>}
+          <Button type="submit" variant="primary" disabled={loading || !balanceado}>
             {loading ? "Guardando..." : "Guardar Cambios"}
-          </button>
+          </Button>
         </div>
       </div>
     </form>

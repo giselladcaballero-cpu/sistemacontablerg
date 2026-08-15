@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Field, Input, Select, Button } from "@/components/ui";
 
 const CONCEPTOS = [
   "IVA",
@@ -58,66 +59,35 @@ export default function VencimientoForm({ empresaId }: { empresaId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-surface p-4 shadow-sm">
-      <h2 className="text-sm font-medium text-ink">Nuevo Vencimiento</h2>
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Concepto</label>
-        <select
-          value={concepto}
-          onChange={(e) => setConcepto(e.target.value)}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-        >
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-[10px] border border-line bg-surface p-[1.15rem]">
+      <h2 className="text-[12px] font-medium uppercase tracking-[.07em] text-ink-2">Nuevo Vencimiento</h2>
+      <Field label="Concepto">
+        <Select value={concepto} onChange={(e) => setConcepto(e.target.value)} className="w-full normal-case">
           {CONCEPTOS.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
           ))}
-        </select>
-      </div>
+        </Select>
+      </Field>
       {concepto === "Otro" && (
-        <div>
-          <label className="block text-xs font-medium text-ink-soft">Especificar</label>
-          <input
-            value={conceptoOtro}
-            onChange={(e) => setConceptoOtro(e.target.value)}
-            className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-          />
-        </div>
+        <Field label="Especificar">
+          <Input value={conceptoOtro} onChange={(e) => setConceptoOtro(e.target.value)} className="w-full normal-case" />
+        </Field>
       )}
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Período (ej. 07/2026)</label>
-        <input
-          value={periodo}
-          onChange={(e) => setPeriodo(e.target.value)}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-        />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Fecha de Vencimiento</label>
-        <input
-          type="date"
-          required
-          value={fecha}
-          onChange={(e) => setFecha(e.target.value)}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-        />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-ink-soft">Notas</label>
-        <input
-          value={notas}
-          onChange={(e) => setNotas(e.target.value)}
-          className="mt-1 w-full rounded-md border border-line px-2 py-1.5 text-sm"
-        />
-      </div>
-      {error && <p className="text-xs text-danger">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-ink hover:bg-accent/90 disabled:opacity-50"
-      >
+      <Field label="Período (ej. 07/2026)">
+        <Input value={periodo} onChange={(e) => setPeriodo(e.target.value)} className="w-full normal-case" />
+      </Field>
+      <Field label="Fecha de Vencimiento">
+        <Input type="date" required value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full normal-case" />
+      </Field>
+      <Field label="Notas">
+        <Input value={notas} onChange={(e) => setNotas(e.target.value)} className="w-full normal-case" />
+      </Field>
+      {error && <p className="text-[11px] text-bad">{error}</p>}
+      <Button type="submit" variant="primary" disabled={loading} className="w-full">
         {loading ? "Guardando..." : "Guardar"}
-      </button>
+      </Button>
     </form>
   );
 }
