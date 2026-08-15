@@ -17,6 +17,9 @@ export default async function ComprobantesPage() {
       <div className="mb-6 flex items-center justify-between">
         <PageTitle>Comprobantes</PageTitle>
         <div className="flex items-center gap-2">
+          <Link href="/comprobantes/importar-arca">
+            <Button>Importar de ARCA →</Button>
+          </Link>
           <Link href="/comprobantes/pendientes">
             <Button>Pendientes de pago →</Button>
           </Link>
