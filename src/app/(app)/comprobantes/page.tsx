@@ -16,9 +16,14 @@ export default async function ComprobantesPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <PageTitle>Comprobantes</PageTitle>
-        <Link href="/comprobantes/nuevo">
-          <Button variant="primary">+ Nuevo Comprobante</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/comprobantes/pendientes">
+            <Button>Pendientes de pago →</Button>
+          </Link>
+          <Link href="/comprobantes/nuevo">
+            <Button variant="primary">+ Nuevo Comprobante</Button>
+          </Link>
+        </div>
       </div>
       <Card>
         <Table>
