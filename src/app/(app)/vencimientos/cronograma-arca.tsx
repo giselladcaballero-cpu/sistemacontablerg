@@ -71,7 +71,7 @@ export default function CronogramaArca({
   if (cronograma.length === 0) {
     return (
       <p className="rounded-[6px] bg-surface-2 px-3 py-2 text-[12.5px] text-ink-2">
-        No hay vencimientos oficiales de ARCA cargados para tu terminación de CUIT en este momento.
+        No hay vencimientos oficiales cargados para tu terminación de CUIT en este momento.
         Pedime que actualice el cronograma cuando quieras ver el próximo período.
       </p>
     );
@@ -79,7 +79,7 @@ export default function CronogramaArca({
 
   return (
     <Card
-      title="Vencimientos oficiales de ARCA"
+      title="Vencimientos oficiales (ARCA / ATM)"
       actions={
         <Button onClick={agregarTodos} disabled={loadingId !== null} className="whitespace-nowrap">
           Agregar todos a mi agenda
@@ -87,7 +87,9 @@ export default function CronogramaArca({
       }
     >
       <p className="px-[1.15rem] pt-3 text-[11px] text-ink-2">
-        Según la terminación de tu CUIT. No incluye Ingresos Brutos (es provincial, no de ARCA).
+        Según la terminación de tu CUIT, si sos empleador y tu periodicidad de SICORE. Las fechas de
+        ATM/SIRCAR (Ingresos Brutos Mendoza) son una estimación según el padrón — confirmalas en el
+        portal de ATM si el importe es significativo.
       </p>
       <ul className="divide-y divide-line text-[12.5px]">
         {cronograma.map((item) => {

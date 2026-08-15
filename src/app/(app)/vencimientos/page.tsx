@@ -14,7 +14,7 @@ export default async function VencimientosPage() {
     supabase
       .from("empresas")
       .select(
-        "cuit, es_empleador, agente_retencion_iva, agente_retencion_ganancias, agente_retencion_iibb, agente_percepcion_iva, agente_percepcion_iibb"
+        "cuit, es_empleador, agente_retencion_iva, agente_retencion_ganancias, agente_retencion_iibb, agente_percepcion_iva, agente_percepcion_iibb, periodicidad_sicore, jurisdicciones_iibb"
       )
       .eq("id", empresaActual!.id)
       .single(),
@@ -38,18 +38,28 @@ export default async function VencimientosPage() {
     !!empresa?.agente_percepcion_iva ||
     !!empresa?.agente_percepcion_iibb;
 
-  let cronograma: { id: string; concepto: string; fecha: string; cuit_terminaciones: number[]; requiere_agente: boolean }[] = [];
+  const jurisdicciones = empresa?.jurisdicciones_iibb ?? [];
+
+  let cronograma: {
+    id: string;
+    concepto: string;
+    fecha: string;
+    cuit_terminaciones: number[];
+    requiere_agente: boolean;
+  }[] = [];
   if (terminacion !== null) {
     const { data } = await supabase
       .from("cronograma_vencimientos_arca")
-      .select("id, concepto, fecha, cuit_terminaciones, requiere_agente")
+      .select("id, concepto, fecha, cuit_terminaciones, requiere_agente, requiere_empleador, periodicidad, jurisdiccion")
       .or(`cuit_terminaciones.eq.{},cuit_terminaciones.cs.{${terminacion}}`)
       .gte("fecha", hoy)
       .order("fecha", { ascending: true });
     cronograma = (data ?? []).filter(
       (item) =>
-        (empresa?.es_empleador || item.concepto !== "Empleadores (SUSS)") &&
-        (!item.requiere_agente || esAgente)
+        (empresa?.es_empleador || !item.requiere_empleador) &&
+        (!item.requiere_agente || esAgente) &&
+        (!item.periodicidad || item.periodicidad === empresa?.periodicidad_sicore) &&
+        (!item.jurisdiccion || jurisdicciones.includes(item.jurisdiccion))
     );
   }
 

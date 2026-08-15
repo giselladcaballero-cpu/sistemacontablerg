@@ -49,6 +49,7 @@ interface Empresa {
   agente_percepcion_iibb: boolean;
   es_empleador: boolean;
   retenciones_suss: boolean;
+  periodicidad_sicore: "mensual" | "quincenal";
 }
 
 export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esAdmin: boolean }) {
@@ -69,6 +70,7 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
   const [agentePercIibb, setAgentePercIibb] = useState(empresa.agente_percepcion_iibb);
   const [esEmpleador, setEsEmpleador] = useState(empresa.es_empleador);
   const [retencionesSuss, setRetencionesSuss] = useState(empresa.retenciones_suss);
+  const [periodicidadSicore, setPeriodicidadSicore] = useState<"mensual" | "quincenal">(empresa.periodicidad_sicore);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +108,7 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
         agente_percepcion_iibb: agentePercIibb,
         es_empleador: esEmpleador,
         retenciones_suss: retencionesSuss,
+        periodicidad_sicore: periodicidadSicore,
       })
       .eq("id", empresa.id);
 
@@ -228,6 +231,26 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
             </div>
           </Card>
         </div>
+
+        <Card title="Depósito de retenciones (SICORE / SIRCAR)">
+          <div className="p-[1.15rem]">
+            <p className="mb-3 text-[11px] text-ink-2">
+              La frecuencia de depósito depende del monto total retenido/percibido en el año anterior
+              (no todos los agentes tienen el mismo vencimiento). Elegí la que te corresponda para que
+              en Vencimientos Impositivos aparezcan las fechas correctas.
+            </p>
+            <Field label="Periodicidad de depósito">
+              <Select
+                value={periodicidadSicore}
+                onChange={(e) => setPeriodicidadSicore(e.target.value as "mensual" | "quincenal")}
+                className="w-full max-w-xs normal-case"
+              >
+                <option value="quincenal">Quincenal (2 depósitos por mes)</option>
+                <option value="mensual">Mensual (1 depósito por mes)</option>
+              </Select>
+            </Field>
+          </div>
+        </Card>
 
         <div className="flex items-center justify-end gap-3">
           {guardado && <p className="text-[12px] text-good">Guardado</p>}
