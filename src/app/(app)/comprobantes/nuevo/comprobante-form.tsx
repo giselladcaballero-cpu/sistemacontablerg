@@ -244,6 +244,19 @@ export default function ComprobanteForm({
           <Field label="Punto de Venta">
             <Input type="number" min={1} value={puntoVenta} onChange={(e) => setPuntoVenta(Number(e.target.value))} className="w-full normal-case" />
           </Field>
+          {direccion === "compra" && (
+            <Field label="N° de Comprobante (del proveedor)">
+              <Input
+                type="number"
+                min={1}
+                required
+                value={numeroCompra}
+                onChange={(e) => setNumeroCompra(e.target.value)}
+                placeholder="Ej: 3456"
+                className="w-full normal-case"
+              />
+            </Field>
+          )}
           <Field label="Fecha">
             <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full normal-case" />
           </Field>
@@ -281,17 +294,6 @@ export default function ComprobanteForm({
           </Field>
           {direccion === "compra" && (
             <>
-              <Field label="N° de Comprobante (del proveedor)">
-                <Input
-                  type="number"
-                  min={1}
-                  required
-                  value={numeroCompra}
-                  onChange={(e) => setNumeroCompra(e.target.value)}
-                  placeholder="Ej: 3456"
-                  className="w-full normal-case"
-                />
-              </Field>
               <Field label="Percepción IVA">
                 <Input type="number" step="0.01" value={percepcionIva} onChange={(e) => setPercepcionIva(Number(e.target.value))} className="w-full normal-case" />
               </Field>
