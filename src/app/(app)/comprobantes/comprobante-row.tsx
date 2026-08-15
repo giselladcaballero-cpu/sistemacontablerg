@@ -4,10 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Comprobante } from "@/lib/types";
+import { Row, Td, Badge, pesos, type Tone } from "@/components/ui";
 
-function fmt(n: number) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n);
-}
+const ESTADO_TONE: Record<string, Tone> = {
+  confirmado: "good",
+  cobrado: "good",
+  pagado: "good",
+  borrador: "gold",
+  anulado: "bad",
+};
 
 export default function ComprobanteRow({
   comprobante,
@@ -67,44 +72,38 @@ export default function ComprobanteRow({
   const esAnulable = ["confirmado", "cobrado", "pagado"].includes(comprobante.estado);
 
   return (
-    <tr>
-      <td className="px-3 py-2 text-ink-soft">{comprobante.fecha}</td>
-      <td className="px-3 py-2 uppercase text-ink-soft">{comprobante.tipo.replace("_", " ")}</td>
-      <td className="px-3 py-2 text-ink-soft">
+    <Row>
+      <Td mono className="text-ink-2">
+        {comprobante.fecha}
+      </Td>
+      <Td mono className="uppercase text-ink-2">
+        {comprobante.tipo.replace("_", " ")}
+      </Td>
+      <Td mono className="text-ink-2">
         {comprobante.punto_venta.toString().padStart(4, "0")}-
         {(comprobante.numero ?? 0).toString().padStart(8, "0")}
-      </td>
-      <td className="px-3 py-2 text-ink">{terceroNombre}</td>
-      <td className="px-3 py-2 capitalize text-ink-soft">{comprobante.direccion}</td>
-      <td className="px-3 py-2 text-right text-ink">{fmt(Number(comprobante.total))}</td>
-      <td className="px-3 py-2">
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs ${
-            comprobante.estado === "confirmado" ||
-            comprobante.estado === "cobrado" ||
-            comprobante.estado === "pagado"
-              ? "bg-accent-soft text-accent-soft-ink"
-              : comprobante.estado === "anulado"
-                ? "bg-danger-soft text-danger"
-                : "bg-surface-muted text-ink-soft"
-          }`}
-        >
-          {comprobante.estado}
-        </span>
-      </td>
-      <td className="px-3 py-2 text-right">
+      </Td>
+      <Td>{terceroNombre}</Td>
+      <Td className="capitalize text-ink-2">{comprobante.direccion}</Td>
+      <Td right mono>
+        {pesos(Number(comprobante.total))}
+      </Td>
+      <Td>
+        <Badge tone={ESTADO_TONE[comprobante.estado] ?? "muted"}>{comprobante.estado}</Badge>
+      </Td>
+      <Td right>
         {esBorrador && (
-          <button onClick={eliminar} disabled={loading} className="text-xs text-danger hover:opacity-80">
+          <button onClick={eliminar} disabled={loading} className="text-[11px] text-bad hover:opacity-80">
             Eliminar
           </button>
         )}
         {esAnulable && (
-          <button onClick={anular} disabled={loading} className="text-xs text-danger hover:opacity-80">
+          <button onClick={anular} disabled={loading} className="text-[11px] text-bad hover:opacity-80">
             Anular
           </button>
         )}
-        {error && <p className="text-xs text-danger">{error}</p>}
-      </td>
-    </tr>
+        {error && <p className="text-[11px] text-bad">{error}</p>}
+      </Td>
+    </Row>
   );
 }
