@@ -1,11 +1,14 @@
 /**
- * Vencimientos que se repiten todos los meses (SUSS, SICORE, IIBB/ATM, SIRCAR).
+ * Vencimientos que se repiten todos los meses (SUSS, SICORE, SIRCAR, IIBB/ATM).
  * En vez de guardar una fila por mes en la base (que hay que actualizar a mano),
- * se calcula la próxima fecha en base al día del mes de hoy: si el día ya pasó
- * este mes, se muestra la del mes siguiente. Así se van "actualizando solas".
+ * se calcula la próxima fecha en base a la de hoy: si ya pasó este mes/período,
+ * se muestra la del siguiente. Así se van "actualizando solas".
  *
- * Los días por terminación de CUIT son una aproximación estándar (no oficial,
- * puede variar por fin de semana/feriado); se marcan como estimados en la UI.
+ * SIRCAR usa el calendario oficial 2026 de la Comisión Arbitral (Anexo RG CA
+ * N° 21/2025, con la corrección de la Disposición de Presidencia N° 1/2026
+ * para Ene/Feb/May/Jul/Oct). SUSS y SICORE (AFIP/ARCA) son una aproximación
+ * estándar por día del mes (no una fuente oficial hardcodeable) y se marcan
+ * como estimadas en la UI.
  */
 
 export interface VencimientoRecurrente {
@@ -14,6 +17,7 @@ export interface VencimientoRecurrente {
   fecha: string; // YYYY-MM-DD
   periodo: string; // MM/YYYY
   requiere_agente: boolean;
+  requiere_agente_iibb: boolean;
   requiere_empleador: boolean;
   periodicidad: "mensual" | "quincenal" | null;
   jurisdiccion: string | null;
@@ -48,10 +52,40 @@ function periodoDe(d: Date): string {
   return `${String(anterior.getMonth() + 1).padStart(2, "0")}/${anterior.getFullYear()}`;
 }
 
+/**
+ * Calendario oficial SIRCAR 2026 (Anexo RG CA N° 21/2025 + Disposición de
+ * Presidencia N° 1/2026). Cada mes: [1ª quincena, 2ª quincena y mensual],
+ * cada una como [grupo CUIT 0-4, grupo CUIT 5-9], en formato YYYY-MM-DD.
+ */
+const SIRCAR_2026: { q1: [string, string]; q2m: [string, string] }[] = [
+  { q1: ["2026-01-22", "2026-01-23"], q2m: ["2026-02-06", "2026-02-09"] }, // enero (corregido)
+  { q1: ["2026-02-24", "2026-02-25"], q2m: ["2026-03-06", "2026-03-09"] }, // febrero (corregido)
+  { q1: ["2026-03-19", "2026-03-20"], q2m: ["2026-04-09", "2026-04-10"] },
+  { q1: ["2026-04-23", "2026-04-24"], q2m: ["2026-05-08", "2026-05-11"] },
+  { q1: ["2026-05-21", "2026-05-22"], q2m: ["2026-06-05", "2026-06-08"] }, // mayo (corregido)
+  { q1: ["2026-06-25", "2026-06-26"], q2m: ["2026-07-07", "2026-07-08"] },
+  { q1: ["2026-07-23", "2026-07-24"], q2m: ["2026-08-07", "2026-08-10"] }, // julio (corregido)
+  { q1: ["2026-08-27", "2026-08-28"], q2m: ["2026-09-07", "2026-09-08"] },
+  { q1: ["2026-09-24", "2026-09-25"], q2m: ["2026-10-08", "2026-10-09"] },
+  { q1: ["2026-10-22", "2026-10-23"], q2m: ["2026-11-09", "2026-11-10"] }, // octubre (corregido)
+  { q1: ["2026-11-19", "2026-11-24"], q2m: ["2026-12-09", "2026-12-10"] },
+  { q1: ["2026-12-22", "2026-12-23"], q2m: ["2027-01-08", "2027-01-11"] },
+];
+
+/** Busca, a partir de hoy, la próxima fecha >= hoy en la columna indicada del calendario SIRCAR. */
+function proximaFechaSircar(hoy: Date, grupo: 0 | 1, columna: "q1" | "q2m"): string | null {
+  const hoyIso = fmtFecha(hoy);
+  for (const fila of SIRCAR_2026) {
+    const fecha = fila[columna][grupo];
+    if (fecha >= hoyIso) return fecha;
+  }
+  return null;
+}
+
 export function generarVencimientosRecurrentes(hoy: Date, terminacion: number): VencimientoRecurrente[] {
   const items: VencimientoRecurrente[] = [];
 
-  // Empleadores (SUSS / F.931): vence días 10, 11 o 12 según terminación
+  // Empleadores (SUSS / F.931): vence días 10, 11 o 12 según terminación (estimado)
   const diaSuss = [10, 11, 12][grupo3(terminacion)];
   const fSuss = proximaFecha(hoy, diaSuss);
   items.push({
@@ -60,12 +94,13 @@ export function generarVencimientosRecurrentes(hoy: Date, terminacion: number): 
     fecha: fmtFecha(fSuss),
     periodo: periodoDe(fSuss),
     requiere_agente: false,
+    requiere_agente_iibb: false,
     requiere_empleador: true,
     periodicidad: null,
     jurisdiccion: null,
   });
 
-  // SICORE quincenal: 1ª quincena vence 21/24/25 del mismo mes; 2ª quincena vence 9/10/11 del mes siguiente
+  // SICORE (AFIP/ARCA) quincenal: 1ª quincena vence 21/24/25 del mismo mes; 2ª quincena vence 9/10/11 del mes siguiente (estimado)
   const dia1raQuincena = [21, 24, 25][grupo3(terminacion)];
   const f1ra = proximaFecha(hoy, dia1raQuincena);
   items.push({
@@ -74,6 +109,7 @@ export function generarVencimientosRecurrentes(hoy: Date, terminacion: number): 
     fecha: fmtFecha(f1ra),
     periodo: periodoDe(f1ra),
     requiere_agente: true,
+    requiere_agente_iibb: false,
     requiere_empleador: false,
     periodicidad: "quincenal",
     jurisdiccion: null,
@@ -87,25 +123,69 @@ export function generarVencimientosRecurrentes(hoy: Date, terminacion: number): 
     fecha: fmtFecha(f2da),
     periodo: periodoDe(f2da),
     requiere_agente: true,
+    requiere_agente_iibb: false,
     requiere_empleador: false,
     periodicidad: "quincenal",
     jurisdiccion: null,
   });
 
-  // SICORE mensual: un solo depósito por mes, mismos días que la 2ª quincena
-  const fMensual = proximaFecha(hoy, dia2daQuincena);
+  const fMensualSicore = proximaFecha(hoy, dia2daQuincena);
   items.push({
-    id: `sicore-m-${fmtFecha(fMensual)}`,
+    id: `sicore-m-${fmtFecha(fMensualSicore)}`,
     concepto: "SICORE - Retenciones/Percepciones (mensual)",
-    fecha: fmtFecha(fMensual),
-    periodo: periodoDe(fMensual),
+    fecha: fmtFecha(fMensualSicore),
+    periodo: periodoDe(fMensualSicore),
     requiere_agente: true,
+    requiere_agente_iibb: false,
     requiere_empleador: false,
     periodicidad: "mensual",
     jurisdiccion: null,
   });
 
-  // Ingresos Brutos ATM (Mendoza) - DDJJ mensual: vence 15 a 19 según terminación
+  // SIRCAR (Convenio Multilateral / Comisión Arbitral) - depósito de retenciones/percepciones IIBB.
+  // Fuente oficial: Anexo RG CA N° 21/2025 + Disposición de Presidencia N° 1/2026. Grupo por CUIT: 0-4 / 5-9.
+  const grupoSircar: 0 | 1 = terminacion <= 4 ? 0 : 1;
+  const fSircarQ1 = proximaFechaSircar(hoy, grupoSircar, "q1");
+  if (fSircarQ1) {
+    items.push({
+      id: `sircar-1q-${fSircarQ1}`,
+      concepto: "SIRCAR - Retenciones/Percepciones IIBB (1ª quincena)",
+      fecha: fSircarQ1,
+      periodo: periodoDe(new Date(fSircarQ1)),
+      requiere_agente: false,
+      requiere_agente_iibb: true,
+      requiere_empleador: false,
+      periodicidad: "quincenal",
+      jurisdiccion: null,
+    });
+  }
+  const fSircarQ2 = proximaFechaSircar(hoy, grupoSircar, "q2m");
+  if (fSircarQ2) {
+    items.push({
+      id: `sircar-2q-${fSircarQ2}`,
+      concepto: "SIRCAR - Retenciones/Percepciones IIBB (2ª quincena)",
+      fecha: fSircarQ2,
+      periodo: periodoDe(new Date(fSircarQ2)),
+      requiere_agente: false,
+      requiere_agente_iibb: true,
+      requiere_empleador: false,
+      periodicidad: "quincenal",
+      jurisdiccion: null,
+    });
+    items.push({
+      id: `sircar-m-${fSircarQ2}`,
+      concepto: "SIRCAR - Retenciones/Percepciones IIBB (mensual)",
+      fecha: fSircarQ2,
+      periodo: periodoDe(new Date(fSircarQ2)),
+      requiere_agente: false,
+      requiere_agente_iibb: true,
+      requiere_empleador: false,
+      periodicidad: "mensual",
+      jurisdiccion: null,
+    });
+  }
+
+  // Ingresos Brutos ATM (Mendoza) - DDJJ mensual: vence 15 a 19 según terminación (estimado por padrón, no es SIRCAR)
   const diaAtm = [15, 16, 17, 18, 19][grupo5(terminacion)];
   const fAtm = proximaFecha(hoy, diaAtm);
   items.push({
@@ -114,19 +194,7 @@ export function generarVencimientosRecurrentes(hoy: Date, terminacion: number): 
     fecha: fmtFecha(fAtm),
     periodo: periodoDe(fAtm),
     requiere_agente: false,
-    requiere_empleador: false,
-    periodicidad: null,
-    jurisdiccion: "Mendoza",
-  });
-
-  // SIRCAR (Mendoza) - depósito de retenciones/percepciones IIBB: mismos días que la DDJJ
-  const fSircar = proximaFecha(hoy, diaAtm);
-  items.push({
-    id: `sircar-${fmtFecha(fSircar)}`,
-    concepto: "SIRCAR - Retenciones/Percepciones IIBB (Mendoza)",
-    fecha: fmtFecha(fSircar),
-    periodo: periodoDe(fSircar),
-    requiere_agente: true,
+    requiere_agente_iibb: false,
     requiere_empleador: false,
     periodicidad: null,
     jurisdiccion: "Mendoza",

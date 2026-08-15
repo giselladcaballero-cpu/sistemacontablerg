@@ -39,6 +39,8 @@ export default async function VencimientosPage() {
     !!empresa?.agente_percepcion_iva ||
     !!empresa?.agente_percepcion_iibb;
 
+  const esAgenteIibb = !!empresa?.agente_retencion_iibb || !!empresa?.agente_percepcion_iibb;
+
   const jurisdicciones = empresa?.jurisdicciones_iibb ?? [];
 
   let cronograma: { id: string; concepto: string; fecha: string }[] = [];
@@ -58,12 +60,13 @@ export default async function VencimientosPage() {
         (!item.jurisdiccion || jurisdicciones.includes(item.jurisdiccion))
     );
 
-    // Recurrentes (SUSS, SICORE, ATM, SIRCAR): se calculan a partir de hoy, no de filas fijas,
+    // Recurrentes (SUSS, SICORE, SIRCAR, ATM): se calculan a partir de hoy, no de filas fijas,
     // así siempre muestran el próximo vencimiento del mes en curso sin necesidad de cargarlos a mano.
     const recurrentes = generarVencimientosRecurrentes(new Date(), terminacion).filter(
       (item) =>
         (empresa?.es_empleador || !item.requiere_empleador) &&
         (!item.requiere_agente || esAgente) &&
+        (!item.requiere_agente_iibb || esAgenteIibb) &&
         (!item.periodicidad || item.periodicidad === empresa?.periodicidad_sicore) &&
         (!item.jurisdiccion || jurisdicciones.includes(item.jurisdiccion))
     );

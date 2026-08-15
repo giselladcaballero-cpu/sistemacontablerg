@@ -86,9 +86,9 @@ export default function CronogramaArca({
       }
     >
       <p className="px-[1.15rem] pt-3 text-[11px] text-ink-2">
-        Según la terminación de tu CUIT, si sos empleador y tu periodicidad de SICORE. Las fechas de
-        ATM/SIRCAR (Ingresos Brutos Mendoza) son una estimación según el padrón — confirmalas en el
-        portal de ATM si el importe es significativo.
+        Según la terminación de tu CUIT, si sos empleador y tu periodicidad de depósito. SIRCAR usa el
+        calendario oficial de la Comisión Arbitral; las fechas de ATM (Ingresos Brutos Mendoza) son una
+        estimación según el padrón — confirmalas en el portal de ATM si el importe es significativo.
       </p>
       <ul className="divide-y divide-line text-[12.5px]">
         {cronograma.map((item) => {
