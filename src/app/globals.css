@@ -3,51 +3,80 @@
 
 :root {
   color-scheme: light;
-  --color-bg: #fbfbfa;
+  --color-bg: #f6f7f9;
   --color-surface: #ffffff;
-  --color-surface-muted: #f0f5f2;
-  --color-ink: #17231f;
-  --color-ink-soft: #5c6e67;
-  --color-line: #e6ebe8;
-  --color-accent: #0d5c48;
-  --color-accent-ink: #f3fbf8;
-  --color-accent-soft: #dcefe6;
-  --color-accent-soft-ink: #0d5c48;
-  --color-danger: #b3261e;
-  --color-danger-soft: #fbe4e1;
+  --color-surface-muted: #eef1f5;
+  --color-surface-2: #eef1f5;
+  --color-ink: #111827;
+  --color-ink-soft: #64748b;
+  --color-ink-2: #64748b;
+  --color-ink-3: #94a3b8;
+  --color-line: #e2e6ec;
+  --color-line-strong: #cbd2dc;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-ink: #ffffff;
+  --color-accent-soft: #dce8fc;
+  --color-accent-soft-ink: #1d4ed8;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fce4e2;
+  --color-gold: #d97706;
+  --color-good: #059669;
+  --color-bad: #dc2626;
+  --color-plum: #7c3aed;
 }
 
 .dark {
   color-scheme: dark;
-  --color-bg: #0e1a16;
-  --color-surface: #16261f;
-  --color-surface-muted: #1c2f27;
-  --color-ink: #e7f1ec;
-  --color-ink-soft: #7fa196;
-  --color-line: #1e332b;
-  --color-accent: #56d6ac;
-  --color-accent-ink: #0a2019;
-  --color-accent-soft: #1d3a2c;
-  --color-accent-soft-ink: #7fe0b8;
-  --color-danger: #e08a80;
-  --color-danger-soft: #3a1f1c;
+  --color-bg: #0a0e17;
+  --color-surface: #111827;
+  --color-surface-muted: #1c2333;
+  --color-surface-2: #1c2333;
+  --color-ink: #e8edf5;
+  --color-ink-soft: #7a8499;
+  --color-ink-2: #7a8499;
+  --color-ink-3: #4a5568;
+  --color-line: rgba(255, 255, 255, 0.07);
+  --color-line-strong: rgba(255, 255, 255, 0.12);
+  --color-accent: #3b82f6;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-ink: #ffffff;
+  --color-accent-soft: rgba(59, 130, 246, 0.15);
+  --color-accent-soft-ink: #93c5fd;
+  --color-danger: #ef4444;
+  --color-danger-soft: rgba(239, 68, 68, 0.15);
+  --color-gold: #f59e0b;
+  --color-good: #10b981;
+  --color-bad: #ef4444;
+  --color-plum: #8b5cf6;
 }
 
 @theme inline {
   --color-bg: var(--color-bg);
   --color-surface: var(--color-surface);
   --color-surface-muted: var(--color-surface-muted);
+  --color-surface-2: var(--color-surface-2);
   --color-ink: var(--color-ink);
   --color-ink-soft: var(--color-ink-soft);
+  --color-ink-2: var(--color-ink-2);
+  --color-ink-3: var(--color-ink-3);
   --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
   --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
   --color-accent-ink: var(--color-accent-ink);
   --color-accent-soft: var(--color-accent-soft);
   --color-accent-soft-ink: var(--color-accent-soft-ink);
   --color-danger: var(--color-danger);
   --color-danger-soft: var(--color-danger-soft);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-gold: var(--color-gold);
+  --color-good: var(--color-good);
+  --color-bad: var(--color-bad);
+  --color-plum: var(--color-plum);
+  --radius-card: 10px;
+  --radius-control: 6px;
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-dm-mono);
 }
 
 body {
@@ -59,6 +88,29 @@ select,
 option {
   background-color: var(--color-surface);
   color: var(--color-ink);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-muted);
+  border-radius: 6px;
+}
+
+@keyframes rg-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rg-in {
+  animation: rg-in 0.2s ease-out;
 }
 
 @layer base {

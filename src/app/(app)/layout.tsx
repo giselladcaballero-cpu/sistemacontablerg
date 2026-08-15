@@ -1,23 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getEmpresaActual } from "@/lib/empresa";
 import SignOutButton from "./sign-out-button";
 import ThemeToggle from "@/components/theme-toggle";
-
-const NAV = [
-  { href: "/dashboard", label: "Resumen" },
-  { href: "/comprobantes", label: "Comprobantes" },
-  { href: "/ordenes-pago", label: "Órdenes de Pago" },
-  { href: "/terceros", label: "Clientes / Proveedores" },
-  { href: "/bancos", label: "Bancos" },
-  { href: "/contabilidad", label: "Contabilidad" },
-  { href: "/iva", label: "Libro IVA" },
-  { href: "/retenciones", label: "Retenciones" },
-  { href: "/vencimientos", label: "Vencimientos Impositivos" },
-  { href: "/plan-cuentas", label: "Plan de Cuentas" },
-  { href: "/perfil", label: "Perfil del Cliente" },
-];
+import SidebarNav from "./sidebar-nav";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -32,28 +18,23 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen bg-bg">
-      <aside className="w-60 shrink-0 border-r bg-surface">
-        <div className="border-b px-4 py-4">
-          <p className="text-sm font-semibold text-ink">{empresa.nombre}</p>
-          <p className="truncate text-xs text-ink-soft">{user.email}</p>
+      <aside className="sticky top-0 flex h-screen w-[222px] shrink-0 flex-col border-r border-line bg-surface">
+        <div className="border-b border-line px-5 pb-4 pt-5">
+          <span className="mb-2 inline-block rounded bg-accent px-2 py-[3px] text-[10px] font-semibold uppercase tracking-[.08em] text-accent-ink">
+            RG
+          </span>
+          <div className="truncate text-[15px] font-semibold leading-tight text-ink">{empresa.nombre}</div>
+          <div className="mt-0.5 truncate font-mono text-[11px] text-ink-2">{user.email}</div>
         </div>
-        <nav className="flex flex-col gap-1 p-3">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-md px-3 py-2 text-sm text-ink hover:bg-surface-muted"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="space-y-2 p-3">
+
+        <SidebarNav />
+
+        <div className="space-y-2 border-t border-line px-[1.1rem] py-[.9rem]">
           <ThemeToggle />
           <SignOutButton />
         </div>
       </aside>
-      <main className="flex-1 p-6">{children}</main>
+      <main className="min-w-0 flex-1 px-8 pb-12 pt-5">{children}</main>
     </div>
   );
 }
