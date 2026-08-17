@@ -2,22 +2,38 @@ import { createClient } from "@/lib/supabase/server";
 import { getEmpresaActual } from "@/lib/empresa";
 import PageTitle from "@/components/page-title";
 import { Card, KpiCard, Table, Th, pesos } from "@/components/ui";
+import { SortableTh } from "@/components/sortable-th";
 import CuentaBancariaForm from "./cuenta-form";
 import MovimientoForm from "./movimiento-form";
 import CuentaBancariaRow from "./cuenta-row";
 import MovimientoRow from "./movimiento-row";
+import BancosFiltros from "./bancos-filtros";
 
-export default async function BancosPage() {
+const SORT_COLUMN: Record<string, string> = {
+  fecha: "fecha",
+  importe: "importe",
+};
+
+export default async function BancosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string; dir?: string; cuenta?: string; tipo?: string }>;
+}) {
+  const { sort, dir, cuenta, tipo } = await searchParams;
   const supabase = await createClient();
   const empresa = await getEmpresaActual();
+
+  let movQuery = supabase.from("movimientos_bancarios").select("*, cuentas_bancarias(nombre)").limit(200);
+  if (cuenta) movQuery = movQuery.eq("cuenta_bancaria_id", cuenta);
+  if (tipo) movQuery = movQuery.eq("tipo", tipo);
+  const column = (sort && SORT_COLUMN[sort]) || "fecha";
+  const ascending = sort ? dir === "asc" : false;
+  movQuery = movQuery.order(column, { ascending });
+
   const [{ data: saldos }, { data: cuentas }, { data: movimientos }] = await Promise.all([
     supabase.from("v_saldos_bancarios").select("*"),
     supabase.from("cuentas_bancarias").select("*").eq("activa", true).order("nombre"),
-    supabase
-      .from("movimientos_bancarios")
-      .select("*, cuentas_bancarias(nombre)")
-      .order("fecha", { ascending: false })
-      .limit(50),
+    movQuery,
   ]);
 
   return (
@@ -48,14 +64,19 @@ export default async function BancosPage() {
           <MovimientoForm cuentas={cuentas ?? []} />
         </div>
         <div className="lg:col-span-2">
+          <BancosFiltros cuentas={cuentas ?? []} />
           <Card>
             <Table>
               <thead>
                 <tr>
-                  <Th>Fecha</Th>
+                  <SortableTh field="fecha" defaultDir="desc">
+                    Fecha
+                  </SortableTh>
                   <Th>Cuenta</Th>
                   <Th>Descripción</Th>
-                  <Th right>Importe</Th>
+                  <SortableTh field="importe" right defaultDir="desc">
+                    Importe
+                  </SortableTh>
                 </tr>
               </thead>
               <tbody>
@@ -69,7 +90,7 @@ export default async function BancosPage() {
                 {(movimientos ?? []).length === 0 && (
                   <tr>
                     <td colSpan={4} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
-                      Sin movimientos todavía
+                      Sin movimientos que coincidan
                     </td>
                   </tr>
                 )}

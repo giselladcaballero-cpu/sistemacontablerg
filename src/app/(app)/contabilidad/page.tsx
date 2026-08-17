@@ -4,6 +4,7 @@ import PageTitle from "@/components/page-title";
 import { Card, Badge, Button, money, type Tone } from "@/components/ui";
 import ContabilidadTabs from "./contabilidad-tabs";
 import DateRangeFilter from "./date-range-filter";
+import ContabilidadFiltros from "./contabilidad-filtros";
 
 const ORIGEN_LABEL: Record<string, string> = {
   automatico: "Automático",
@@ -17,20 +18,29 @@ const ORIGEN_TONE: Record<string, Tone> = {
 export default async function ContabilidadPage({
   searchParams,
 }: {
-  searchParams: Promise<{ desde?: string; hasta?: string }>;
+  searchParams: Promise<{ desde?: string; hasta?: string; origen?: string; orden?: string }>;
 }) {
-  const { desde, hasta } = await searchParams;
+  const { desde, hasta, origen, orden } = await searchParams;
   const supabase = await createClient();
 
   let query = supabase
     .from("asientos")
     .select("id, numero, fecha, descripcion, origen, anulado, asiento_lineas(id, debe, haber, plan_cuentas(codigo, nombre), terceros(razon_social))")
-    .order("fecha", { ascending: false })
-    .order("numero", { ascending: false })
     .limit(200);
 
   if (desde) query = query.gte("fecha", desde);
   if (hasta) query = query.lte("fecha", hasta);
+  if (origen) query = query.eq("origen", origen);
+
+  if (orden === "antiguo") {
+    query = query.order("fecha", { ascending: true }).order("numero", { ascending: true });
+  } else if (orden === "numero_asc") {
+    query = query.order("numero", { ascending: true });
+  } else if (orden === "numero_desc") {
+    query = query.order("numero", { ascending: false });
+  } else {
+    query = query.order("fecha", { ascending: false }).order("numero", { ascending: false });
+  }
 
   const { data: asientos } = await query;
 
@@ -44,6 +54,7 @@ export default async function ContabilidadPage({
       </div>
       <ContabilidadTabs />
       <DateRangeFilter />
+      <ContabilidadFiltros />
 
       <div className="space-y-3.5">
         {(asientos ?? []).map((a) => {

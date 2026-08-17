@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import PageTitle from "@/components/page-title";
 import { Card, KpiCard, Table, Th, pesos } from "@/components/ui";
+import { SortableTh } from "@/components/sortable-th";
+import RetencionesFiltros from "./retenciones-filtros";
 
 const NOMBRES: Record<string, string> = {
   iva: "IVA",
@@ -9,19 +11,32 @@ const NOMBRES: Record<string, string> = {
   suss: "SUSS",
 };
 
-export default async function RetencionesPage() {
+export default async function RetencionesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string; dir?: string; tipo?: string }>;
+}) {
+  const { sort, dir, tipo } = await searchParams;
   const supabase = await createClient();
-  const { data: retenciones } = await supabase
-    .from("v_retenciones")
-    .select("*")
-    .order("fecha", { ascending: false });
+  const { data } = await supabase.from("v_retenciones").select("*");
 
-  const totalesPorTipo = ["iva", "ganancias", "iibb", "suss"].map((tipo) => ({
-    tipo,
-    total: (retenciones ?? [])
-      .filter((r) => r.tipo === tipo)
-      .reduce((s, r) => s + Number(r.importe), 0),
+  const totalesPorTipo = ["iva", "ganancias", "iibb", "suss"].map((t) => ({
+    tipo: t,
+    total: (data ?? []).filter((r) => r.tipo === t).reduce((s, r) => s + Number(r.importe), 0),
   }));
+
+  let retenciones = (data ?? []).filter((r) => !tipo || r.tipo === tipo);
+
+  const campo = sort ?? "fecha";
+  const ascending = sort ? dir === "asc" : false;
+  retenciones = [...retenciones].sort((a, b) => {
+    let cmp = 0;
+    if (campo === "proveedor") cmp = a.proveedor.localeCompare(b.proveedor);
+    else if (campo === "importe") cmp = Number(a.importe) - Number(b.importe);
+    else if (campo === "tipo") cmp = (NOMBRES[a.tipo] ?? a.tipo).localeCompare(NOMBRES[b.tipo] ?? b.tipo);
+    else cmp = a.fecha.localeCompare(b.fecha);
+    return ascending ? cmp : -cmp;
+  });
 
   return (
     <div>
@@ -33,20 +48,25 @@ export default async function RetencionesPage() {
         ))}
       </div>
 
+      <RetencionesFiltros />
       <Card>
         <Table>
           <thead>
             <tr>
-              <Th>Fecha</Th>
+              <SortableTh field="fecha" defaultDir="desc">
+                Fecha
+              </SortableTh>
               <Th>Orden de Pago</Th>
-              <Th>Proveedor</Th>
+              <SortableTh field="proveedor">Proveedor</SortableTh>
               <Th>CUIT</Th>
-              <Th>Tipo</Th>
-              <Th right>Importe</Th>
+              <SortableTh field="tipo">Tipo</SortableTh>
+              <SortableTh field="importe" right defaultDir="desc">
+                Importe
+              </SortableTh>
             </tr>
           </thead>
           <tbody>
-            {(retenciones ?? []).map((r, idx) => (
+            {retenciones.map((r, idx) => (
               <tr key={idx} className="border-b border-line hover:bg-accent/5">
                 <td className="px-3 py-2 font-mono text-[11px] text-ink-2">{r.fecha}</td>
                 <td className="px-3 py-2 font-mono text-[11px] text-ink-2">#{r.numero}</td>
@@ -56,10 +76,10 @@ export default async function RetencionesPage() {
                 <td className="px-3 py-2 text-right font-mono text-[11.5px] text-ink">{pesos(Number(r.importe))}</td>
               </tr>
             ))}
-            {(retenciones ?? []).length === 0 && (
+            {retenciones.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
-                  Sin retenciones todavía
+                  Sin retenciones que coincidan
                 </td>
               </tr>
             )}

@@ -2,11 +2,18 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PageTitle from "@/components/page-title";
 import { Card, Table, Th, Button, pesos } from "@/components/ui";
+import { SortableTh } from "@/components/sortable-th";
 import OrdenPagoRow from "./orden-pago-row";
+import OrdenesPagoFiltros from "./ordenes-pago-filtros";
 
-export default async function OrdenesPagoPage() {
+export default async function OrdenesPagoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string; dir?: string; estado?: string }>;
+}) {
+  const { sort, dir, estado } = await searchParams;
   const supabase = await createClient();
-  const [{ data: pendientes }, { data: ordenes }] = await Promise.all([
+  const [{ data: pendientes }, { data: ordenesData }] = await Promise.all([
     supabase
       .from("v_cuenta_corriente_terceros")
       .select("*")
@@ -15,6 +22,17 @@ export default async function OrdenesPagoPage() {
       .order("saldo_pendiente", { ascending: false }),
     supabase.from("v_ordenes_pago").select("*").limit(50),
   ]);
+
+  let ordenes = (ordenesData ?? []).filter((o) => !estado || o.estado === estado);
+  const campo = sort ?? "fecha";
+  const ascending = sort ? dir === "asc" : false;
+  ordenes = [...ordenes].sort((a, b) => {
+    let cmp = 0;
+    if (campo === "proveedor") cmp = a.proveedor.localeCompare(b.proveedor);
+    else if (campo === "importe_neto") cmp = Number(a.importe_neto) - Number(b.importe_neto);
+    else cmp = a.fecha.localeCompare(b.fecha);
+    return ascending ? cmp : -cmp;
+  });
 
   return (
     <div>
@@ -53,25 +71,32 @@ export default async function OrdenesPagoPage() {
         </Card>
 
         <Card title="Historial">
+          <div className="px-[1.15rem] pt-3">
+            <OrdenesPagoFiltros />
+          </div>
           <Table>
             <thead>
               <tr>
-                <Th>Fecha</Th>
-                <Th>Proveedor</Th>
+                <SortableTh field="fecha" defaultDir="desc">
+                  Fecha
+                </SortableTh>
+                <SortableTh field="proveedor">Proveedor</SortableTh>
                 <Th>Cuenta</Th>
-                <Th right>Neto pagado</Th>
+                <SortableTh field="importe_neto" right defaultDir="desc">
+                  Neto pagado
+                </SortableTh>
                 <Th>Estado</Th>
                 <Th right>{""}</Th>
               </tr>
             </thead>
             <tbody>
-              {(ordenes ?? []).map((o) => (
+              {ordenes.map((o) => (
                 <OrdenPagoRow key={o.id} orden={o} />
               ))}
-              {(ordenes ?? []).length === 0 && (
+              {ordenes.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-3 py-6 text-center text-[12.5px] text-ink-2">
-                    Sin órdenes de pago todavía
+                    Sin órdenes de pago que coincidan
                   </td>
                 </tr>
               )}
