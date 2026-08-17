@@ -14,6 +14,16 @@ export function exportToExcel(filename: string, headers: string[], rows: (string
   URL.revokeObjectURL(url);
 }
 
+export function exportToTxt(filename: string, content: string) {
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${filename}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function exportToPdf(
   filename: string,
   title: string,

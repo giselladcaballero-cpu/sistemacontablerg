@@ -1,8 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { getEmpresaActual } from "@/lib/empresa";
 import PageTitle from "@/components/page-title";
 import { Card, KpiCard, Table, Th, pesos } from "@/components/ui";
 import { SortableTh } from "@/components/sortable-th";
 import RetencionesFiltros from "./retenciones-filtros";
+import DateRangeFilter from "../contabilidad/date-range-filter";
+import RetencionesExport from "./retenciones-export";
 
 const NOMBRES: Record<string, string> = {
   iva: "IVA",
@@ -14,18 +17,31 @@ const NOMBRES: Record<string, string> = {
 export default async function RetencionesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string; dir?: string; tipo?: string }>;
+  searchParams: Promise<{ sort?: string; dir?: string; tipo?: string; desde?: string; hasta?: string }>;
 }) {
-  const { sort, dir, tipo } = await searchParams;
+  const { sort, dir, tipo, desde, hasta } = await searchParams;
   const supabase = await createClient();
+  const empresaActual = await getEmpresaActual();
   const { data } = await supabase.from("v_retenciones").select("*");
+  const { data: empresa } = await supabase
+    .from("empresas")
+    .select("sicore_codigo_regimen, sircar_codigo_jurisdiccion, sircar_codigo_agente")
+    .eq("id", empresaActual!.id)
+    .single();
+  const { data: detalleData } = await supabase.from("v_retenciones_detalle").select("*");
+
+  const enPeriodo = (fecha: string) => (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
 
   const totalesPorTipo = ["iva", "ganancias", "iibb", "suss"].map((t) => ({
     tipo: t,
-    total: (data ?? []).filter((r) => r.tipo === t).reduce((s, r) => s + Number(r.importe), 0),
+    total: (data ?? [])
+      .filter((r) => r.tipo === t && enPeriodo(r.fecha))
+      .reduce((s, r) => s + Number(r.importe), 0),
   }));
 
-  let retenciones = (data ?? []).filter((r) => !tipo || r.tipo === tipo);
+  const detalle = (detalleData ?? []).filter((r) => enPeriodo(r.fecha_pago));
+
+  let retenciones = (data ?? []).filter((r) => (!tipo || r.tipo === tipo) && enPeriodo(r.fecha));
 
   const campo = sort ?? "fecha";
   const ascending = sort ? dir === "asc" : false;
@@ -48,7 +64,18 @@ export default async function RetencionesPage({
         ))}
       </div>
 
+      <DateRangeFilter />
       <RetencionesFiltros />
+
+      <div className="mb-6">
+        <RetencionesExport
+          detalle={detalle}
+          codigoRegimen={empresa?.sicore_codigo_regimen ?? "02170781"}
+          jurisdiccion={empresa?.sircar_codigo_jurisdiccion ?? "101"}
+          agente={empresa?.sircar_codigo_agente ?? "913"}
+        />
+      </div>
+
       <Card>
         <Table>
           <thead>

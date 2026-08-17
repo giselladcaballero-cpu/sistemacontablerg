@@ -51,6 +51,9 @@ interface Empresa {
   retenciones_suss: boolean;
   periodicidad_sicore: "mensual" | "quincenal";
   cierre_ejercicio_mes: number;
+  sicore_codigo_regimen: string | null;
+  sircar_codigo_jurisdiccion: string | null;
+  sircar_codigo_agente: string | null;
 }
 
 const MESES_EJERCICIO = [
@@ -78,6 +81,9 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
   const [retencionesSuss, setRetencionesSuss] = useState(empresa.retenciones_suss);
   const [periodicidadSicore, setPeriodicidadSicore] = useState<"mensual" | "quincenal">(empresa.periodicidad_sicore);
   const [cierreEjercicioMes, setCierreEjercicioMes] = useState(empresa.cierre_ejercicio_mes);
+  const [sicoreCodigoRegimen, setSicoreCodigoRegimen] = useState(empresa.sicore_codigo_regimen ?? "02170781");
+  const [sircarCodigoJurisdiccion, setSircarCodigoJurisdiccion] = useState(empresa.sircar_codigo_jurisdiccion ?? "101");
+  const [sircarCodigoAgente, setSircarCodigoAgente] = useState(empresa.sircar_codigo_agente ?? "913");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -117,6 +123,9 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
         retenciones_suss: retencionesSuss,
         periodicidad_sicore: periodicidadSicore,
         cierre_ejercicio_mes: cierreEjercicioMes,
+        sicore_codigo_regimen: sicoreCodigoRegimen || null,
+        sircar_codigo_jurisdiccion: sircarCodigoJurisdiccion || null,
+        sircar_codigo_agente: sircarCodigoAgente || null,
       })
       .eq("id", empresa.id);
 
@@ -270,6 +279,22 @@ export default function PerfilForm({ empresa, esAdmin }: { empresa: Empresa; esA
                 <option value="mensual">Mensual (1 depósito por mes)</option>
               </Select>
             </Field>
+
+            <p className="mb-3 mt-5 text-[11px] text-ink-2">
+              Códigos usados al generar los archivos .txt de exportación desde Retenciones. Se completan
+              con valores por defecto — ajustalos si tu régimen/jurisdicción/agente difieren.
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Field label="Código de régimen SICORE">
+                <Input value={sicoreCodigoRegimen} onChange={(e) => setSicoreCodigoRegimen(e.target.value)} className="w-full normal-case" />
+              </Field>
+              <Field label="Código de jurisdicción SIRCAR">
+                <Input value={sircarCodigoJurisdiccion} onChange={(e) => setSircarCodigoJurisdiccion(e.target.value)} className="w-full normal-case" />
+              </Field>
+              <Field label="Código de agente SIRCAR">
+                <Input value={sircarCodigoAgente} onChange={(e) => setSircarCodigoAgente(e.target.value)} className="w-full normal-case" />
+              </Field>
+            </div>
           </div>
         </Card>
 
