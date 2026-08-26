@@ -70,6 +70,27 @@ export default function ComprobanteRow({
 
   const esBorrador = comprobante.estado === "borrador";
   const esAnulable = ["confirmado", "cobrado", "pagado"].includes(comprobante.estado);
+  const TIPOS_CON_CAE = ["factura_a", "factura_b", "factura_c", "nota_credito_a", "nota_credito_b", "nota_credito_c", "nota_debito_a", "nota_debito_b", "nota_debito_c"];
+  const puedeEmitirCae =
+    comprobante.direccion === "venta" &&
+    !comprobante.cae &&
+    comprobante.estado !== "borrador" &&
+    comprobante.estado !== "anulado" &&
+    TIPOS_CON_CAE.includes(comprobante.tipo);
+
+  async function emitirCae() {
+    if (!confirm("¿Solicitar el CAE de este comprobante a ARCA? Esta acción no se puede deshacer.")) return;
+    setLoading(true);
+    setError(null);
+    const res = await fetch(`/api/comprobantes/${comprobante.id}/emitir-cae`, { method: "POST" });
+    const body = await res.json();
+    setLoading(false);
+    if (!res.ok) {
+      setError(body.error ?? "No se pudo emitir el CAE");
+      return;
+    }
+    router.refresh();
+  }
 
   return (
     <Row>
@@ -95,6 +116,16 @@ export default function ComprobanteRow({
         <Badge tone={ESTADO_TONE[comprobante.estado] ?? "muted"}>{comprobante.estado}</Badge>
       </Td>
       <Td right>
+        {comprobante.cae && (
+          <span className="mr-2 text-[10px] text-ink-2" title={`Vence ${comprobante.cae_vencimiento ?? ""}`}>
+            CAE {comprobante.cae}
+          </span>
+        )}
+        {puedeEmitirCae && (
+          <button onClick={emitirCae} disabled={loading} className="mr-2 text-[11px] font-medium text-accent hover:opacity-80">
+            {loading ? "Emitiendo..." : "Emitir con CAE"}
+          </button>
+        )}
         {esBorrador && (
           <button onClick={eliminar} disabled={loading} className="text-[11px] text-bad hover:opacity-80">
             Eliminar

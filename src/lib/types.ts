@@ -62,6 +62,8 @@ export interface Comprobante {
   total: number;
   estado: EstadoComprobante;
   asiento_id: string | null;
+  cae: string | null;
+  cae_vencimiento: string | null;
 }
 
 export interface ComprobanteItem {
