@@ -48,6 +48,9 @@ export default async function ComprobantesPage({
           <Link href="/comprobantes/importar-arca">
             <Button>Importar de ARCA →</Button>
           </Link>
+          <Link href="/comprobantes/escanear">
+            <Button>Escanear factura →</Button>
+          </Link>
           <Link href="/comprobantes/pendientes">
             <Button>Pendientes de pago →</Button>
           </Link>
