@@ -9,12 +9,13 @@ const NAV = [
   { href: "/ordenes-pago", num: "03", label: "Órdenes de Pago" },
   { href: "/terceros", num: "04", label: "Clientes / Proveedores" },
   { href: "/bancos", num: "05", label: "Bancos" },
-  { href: "/contabilidad", num: "06", label: "Contabilidad" },
-  { href: "/iva", num: "07", label: "Libro IVA" },
-  { href: "/retenciones", num: "08", label: "Retenciones" },
-  { href: "/vencimientos", num: "09", label: "Vencimientos Impositivos" },
-  { href: "/plan-cuentas", num: "10", label: "Plan de Cuentas" },
-  { href: "/perfil", num: "11", label: "Perfil del Cliente" },
+  { href: "/conciliaciones", num: "06", label: "Conciliaciones" },
+  { href: "/contabilidad", num: "07", label: "Contabilidad" },
+  { href: "/iva", num: "08", label: "Libro IVA" },
+  { href: "/retenciones", num: "09", label: "Retenciones" },
+  { href: "/vencimientos", num: "10", label: "Vencimientos Impositivos" },
+  { href: "/plan-cuentas", num: "11", label: "Plan de Cuentas" },
+  { href: "/perfil", num: "12", label: "Perfil del Cliente" },
 ];
 
 export default function SidebarNav() {
