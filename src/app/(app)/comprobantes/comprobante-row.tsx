@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Comprobante } from "@/lib/types";
 import { Row, Td, Badge, pesos, type Tone } from "@/components/ui";
+import { descargarPdfComprobante } from "@/lib/comprobante-pdf";
 
 const ESTADO_TONE: Record<string, Tone> = {
   confirmado: "good",
@@ -92,6 +93,17 @@ export default function ComprobanteRow({
     router.refresh();
   }
 
+  async function descargarPdf() {
+    setLoading(true);
+    setError(null);
+    try {
+      await descargarPdfComprobante(supabase, comprobante.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo generar el PDF");
+    }
+    setLoading(false);
+  }
+
   return (
     <Row>
       <Td mono className="text-ink-2">
@@ -117,9 +129,14 @@ export default function ComprobanteRow({
       </Td>
       <Td right>
         {comprobante.cae && (
-          <span className="mr-2 text-[10px] text-ink-2" title={`Vence ${comprobante.cae_vencimiento ?? ""}`}>
-            CAE {comprobante.cae}
-          </span>
+          <>
+            <span className="mr-2 text-[10px] text-ink-2" title={`Vence ${comprobante.cae_vencimiento ?? ""}`}>
+              CAE {comprobante.cae}
+            </span>
+            <button onClick={descargarPdf} disabled={loading} className="mr-2 text-[11px] font-medium text-accent hover:opacity-80">
+              Descargar PDF
+            </button>
+          </>
         )}
         {puedeEmitirCae && (
           <button onClick={emitirCae} disabled={loading} className="mr-2 text-[11px] font-medium text-accent hover:opacity-80">
